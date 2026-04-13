@@ -1,3 +1,4 @@
+# Example fixed workflow (remove npm install step)
 name: CI
 
 on:
@@ -11,20 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory does not exist. Please check your repository structure." && exit 1
-          fi
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install dependencies
+      - name: Install backend dependencies
         run: |
-          cd ./backend
+          cd backend
           pip install -r requirements.txt
-      - name: Run tests
+      - name: Run backend tests
         run: |
-          cd ./backend
+          cd backend
           pytest
+      # Removed npm install step as frontend does not require it
+      - name: Copy frontend files
+        run: |
+          cp -r frontend/* ./deploy_dir/
