@@ -13,23 +13,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-        working-directory: ./backend
+          python-version: '3.11'
 
       - name: Install backend dependencies
-        run: pip install -r requirements.txt
         working-directory: ./backend
+        run: |
+          pip install -r requirements.txt
+          pip install flake8
+
+      - name: Lint backend code
+        working-directory: ./backend
+        run: |
+          python -m flake8 .
 
       - name: Run backend tests
-        run: pytest
         working-directory: ./backend
+        run: |
+          pytest
 
       - name: Deploy frontend (static)
-        run: echo "Frontend deployment step (no build needed)"
         working-directory: ./frontend
+        run: |
+          echo "Frontend deployment step (static HTML/CSS/JS, no build needed)"
