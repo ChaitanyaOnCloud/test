@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -9,39 +9,38 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
-      - name: Checkout code
+      - name: Checkout code with retry
         uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
+        continue-on-error: true
+      - name: Retry checkout if failed
+        if: failure()
+        run: |
+          echo "Retrying checkout..."
+          sleep 5
+          git fetch --all
+          git reset --hard origin/${{ github.ref_name }}
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
-      - name: Install dependencies
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8
-
-      - name: Lint with flake8
-        run: |
-          flake8 .
-
-      - name: Run tests
+      - name: Run backend tests
+        working-directory: ./backend
         run: |
           pytest
-
-  frontend-check:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
+      - name: Lint backend
+        working-directory: ./backend
+        run: |
+          pip install flake8
+          flake8 .
+      - name: Check frontend files
         working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: HTML/CSS/JS validation
-        run: echo "No build needed for vanilla frontend."
+        run: |
+          ls -l
