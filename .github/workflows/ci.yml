@@ -7,16 +7,16 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -29,4 +29,13 @@ jobs:
         run: |
           pytest
 
-      # No npm install or frontend build step needed, as frontend is static files
+      - name: Lint backend
+        working-directory: ./backend
+        run: |
+          pip install flake8
+          flake8 .
+
+      - name: Check frontend files
+        run: |
+          test -f ./frontend/index.html
+          test -f ./frontend/style.css
