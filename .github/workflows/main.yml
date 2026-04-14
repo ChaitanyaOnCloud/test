@@ -2,41 +2,36 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "Backend directory missing! Creating it."
-            mkdir -p ./backend
-          fi
-
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      - name: Install backend dependencies
-        if: ${{ exists('backend/requirements.txt') }}
+      - name: Install dependencies (Backend)
+        working-directory: ./backend
         run: |
-          pip install -r ./backend/requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
-        if: ${{ exists('backend') }}
+        working-directory: ./backend
         run: |
-          cd ./backend
-          pytest || echo "No tests found or backend missing."
+          pytest
 
-      - name: Deploy frontend
+      - name: Deploy frontend (Static)
+        working-directory: ./frontend
         run: |
-          echo "Deploying frontend (static HTML/CSS/JS)"
-          # Add deployment commands here if needed
+          echo "Frontend deployment step (static HTML/CSS/JS, no build needed)"
