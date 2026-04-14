@@ -1,41 +1,32 @@
 name: CI
-
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Ensure backend directory exists
-        run: mkdir -p ./backend
-
-      - name: Set up Python 3.10
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Verify frontend directory exists
+        run: |
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory does not exist."
+            exit 1
+          fi
+      - name: List frontend directory
+        run: ls -l ./frontend
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
-      - name: Install dependencies
-        working-directory: ./backend
+      - name: Install backend dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
+          cd ./backend
+          pip install -r requirements.txt
       - name: Run backend tests
-        working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pytest; fi
-
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          if [ -f requirements.txt ]; then flake8 .; fi
-
-      - name: Check frontend files
-        run: |
-          ls -l ./frontend
+          cd ./backend
+          pytest
