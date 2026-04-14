@@ -29,6 +29,11 @@ jobs:
         run: |
           pytest
 
+      - name: List backend files (for debug)
+        working-directory: ./backend
+        run: |
+          ls -al
+
       - name: Deploy frontend (static files)
         run: |
           echo "Frontend is vanilla HTML/CSS/JS. No build step required."
