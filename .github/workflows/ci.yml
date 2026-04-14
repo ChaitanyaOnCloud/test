@@ -21,23 +21,17 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then
-            pytest
-          fi
+          if [ -f requirements.txt ]; then pytest; fi
 
       - name: Lint backend
         working-directory: ./backend
         run: |
-          if pip show flake8 > /dev/null 2>&1; then
-            flake8 .
-          fi
+          if [ -f requirements.txt ]; then flake8 .; fi
 
       - name: Check frontend files
         working-directory: ./frontend
