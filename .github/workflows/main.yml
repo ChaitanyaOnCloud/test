@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -15,24 +13,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install flake8
+
+      - name: Lint backend code
+        working-directory: ./backend
+        run: flake8 .
 
       - name: Run backend tests
         working-directory: ./backend
-        run: |
-          pytest
+        run: pytest
 
-      - name: Deploy frontend (static files)
-        if: github.ref == 'refs/heads/main'
+      - name: Check frontend directory
         run: |
-          echo "Frontend is static HTML/CSS/JS. No build required."
-          # Add deployment commands here if needed, e.g., copy files to server
+          if [ -d ./frontend ]; then
+            echo "Frontend directory exists. Listing files:"
+            ls -l ./frontend
+          else
+            echo "Frontend directory does not exist. Skipping frontend steps."
+          fi
