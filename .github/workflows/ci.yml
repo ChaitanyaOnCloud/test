@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
@@ -28,15 +28,14 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
+          if [ -f pytest.ini ] || [ -d tests ]; then
             pytest
           fi
 
       - name: Lint backend
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install flake8
+          if pip show flake8 > /dev/null 2>&1; then
             flake8 .
           fi
 
