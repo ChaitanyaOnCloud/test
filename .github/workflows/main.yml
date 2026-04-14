@@ -23,11 +23,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
           pytest
+
+      - name: List frontend files
+        working-directory: ./frontend
+        run: |
+          ls -al
 
       - name: Deploy frontend (static)
         working-directory: ./frontend
