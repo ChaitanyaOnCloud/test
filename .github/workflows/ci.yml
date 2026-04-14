@@ -1,4 +1,3 @@
-# Example fixed workflow for your project
 name: CI
 
 on:
@@ -8,13 +7,16 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -30,5 +32,13 @@ jobs:
         run: |
           pytest
 
-      # No npm install or Node.js steps needed for frontend
-      # If you want to check for HTML/CSS/JS linting, add those steps here, but do not run npm install
+      - name: Lint backend
+        working-directory: ./backend
+        run: |
+          pip install flake8
+          flake8 .
+
+      - name: Check frontend static files
+        working-directory: ./frontend
+        run: |
+          ls -l
