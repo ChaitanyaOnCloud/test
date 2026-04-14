@@ -29,8 +29,8 @@ jobs:
         run: |
           pytest
 
-      # No npm install or frontend build steps required
       - name: Archive frontend static files
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: frontend-static
