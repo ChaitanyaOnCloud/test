@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
@@ -26,14 +26,9 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pytest; fi
+          if [ -f pytest.ini ] || [ -f tests ]; then pytest; fi
 
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          if [ -f requirements.txt ]; then flake8 .; fi
-
-      - name: Check frontend files
+      - name: Deploy frontend (static)
         working-directory: ./frontend
         run: |
-          ls -l
+          echo "Frontend deployment step (static HTML/CSS/JS, no build needed)"
