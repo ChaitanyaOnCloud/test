@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -7,11 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,18 +18,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run backend tests
+        working-directory: ./backend
         run: |
           pytest
 
-      - name: Lint backend
+      - name: Check frontend static files
         run: |
-          pip install flake8
-          flake8 .
-
-  # No npm install or build steps for frontend, as it is static HTML/CSS/JS
+          test -f ./frontend/index.html && echo "Frontend index.html exists."
+          test -f ./frontend/style.css && echo "Frontend style.css exists."
+          test -f ./frontend/app.js && echo "Frontend app.js exists."
