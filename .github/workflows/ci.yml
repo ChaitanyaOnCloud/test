@@ -7,57 +7,27 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
       - name: Install dependencies
-        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
-      - name: Run backend tests
-        working-directory: ./backend
+      - name: Run tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest --junitxml=test-results/results.xml --cov=. --cov-report=html; else echo 'No tests found'; fi
+          pytest
 
-      - name: Ensure backend test-results directory exists
-        run: |
-          mkdir -p ./backend/test-results
-
-      - name: Ensure backend coverage directory exists
-        run: |
-          mkdir -p ./backend/htmlcov
-
-      - name: Upload backend test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-test-results
-          path: ./backend/test-results/
-
-      - name: Upload backend coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-coverage
-          path: ./backend/htmlcov/
-
-      - name: Validate frontend files exist
-        run: |
-          if [ -d ./frontend ] && [ -f ./frontend/index.html ]; then echo 'Frontend files present'; else echo 'Frontend files missing' && exit 1; fi
-
-      - name: Upload frontend (static files)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: ./frontend/
+      # No npm install or frontend build steps needed
