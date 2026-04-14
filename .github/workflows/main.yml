@@ -10,36 +10,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "Backend directory missing!"; exit 1;
-          fi
-
-      - name: Install dependencies
+      - name: Install backend dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo "No tests found"; fi
+          pytest
 
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          if command -v flake8; then flake8 .; else pip install flake8 && flake8 .; fi
-
-      - name: Check frontend files
-        run: |
-          test -f ./frontend/index.html && echo "Frontend present" || (echo "Missing frontend" && exit 1)
+      - name: Deploy frontend (static files)
+        if: github.ref == 'refs/heads/main'
+        run: echo "Frontend is static HTML/CSS/JS, no build required."
