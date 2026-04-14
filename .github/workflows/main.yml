@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
@@ -30,6 +30,7 @@ jobs:
           pytest
 
       - name: Deploy frontend (static files)
+        if: success()
         run: |
-          echo "Frontend is vanilla HTML/CSS/JS. No build needed."
-          # Optionally, add deployment steps for static files if required
+          echo "Frontend is vanilla HTML/CSS/JS. No build required."
+          # Optionally, add deployment steps for static files here
