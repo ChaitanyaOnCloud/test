@@ -1,32 +1,35 @@
 name: CI
-
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          path: .
-      - name: Set up Python 3.10
+          submodules: true
+      - name: Verify backend directory exists
+        run: |
+          if [ ! -d "./backend" ]; then
+            echo "ERROR: ./backend directory does not exist." >&2
+            exit 1
+          fi
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f tests ]; then pytest; fi
-      - name: Check frontend files
-        working-directory: ./frontend
+          pytest
+      - name: Deploy frontend (static)
         run: |
-          ls -l
+          echo "Frontend deployment step (static HTML/CSS/JS, no build needed)"
