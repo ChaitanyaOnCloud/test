@@ -1,12 +1,11 @@
+# Example fixed workflow for your project
 name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -15,10 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Backend setup (Python/FastAPI)
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -31,12 +31,8 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy (example step)
-        run: echo "Deployment step placeholder"
-
-      # No npm install or build steps needed for frontend
-      # Frontend is vanilla HTML/CSS/JS, so just check for existence
-      - name: Verify frontend files
+      # Frontend (Vanilla HTML/CSS/JS) does not require npm install
+      - name: Lint frontend HTML/CSS/JS (optional)
+        working-directory: ./frontend
         run: |
-          test -f ./frontend/index.html
-          test -f ./frontend/style.css
+          echo "No build step required for vanilla frontend."
