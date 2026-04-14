@@ -27,7 +27,15 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest --junitxml=test-results/results.xml --cov=. --cov-report=html; else echo 'No tests found'; fi
+
+      - name: Ensure backend test-results directory exists
+        run: |
+          mkdir -p ./backend/test-results
+
+      - name: Ensure backend coverage directory exists
+        run: |
+          mkdir -p ./backend/htmlcov
 
       - name: Upload backend test results
         if: always()
@@ -42,6 +50,10 @@ jobs:
         with:
           name: backend-coverage
           path: ./backend/htmlcov/
+
+      - name: Validate frontend files exist
+        run: |
+          if [ -d ./frontend ] && [ -f ./frontend/index.html ]; then echo 'Frontend files present'; else echo 'Frontend files missing' && exit 1; fi
 
       - name: Upload frontend (static files)
         if: always()
