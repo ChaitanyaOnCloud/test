@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -10,17 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Verify backend directory exists
+      - name: Validate backend directory exists
         run: |
           if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory missing!" >&2
+            echo "ERROR: ./backend directory does not exist. Please check your repository structure."
             exit 1
           fi
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -28,32 +28,27 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pytest
-          else
-            echo "No requirements.txt found, skipping tests."
-          fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo "No tests found."; fi
 
       - name: Lint backend
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install flake8
-            flake8 .
+          if [ -f requirements.txt ]; then pip install flake8; fi
+          flake8 .
+
+      - name: Validate frontend directory exists
+        run: |
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory does not exist. Please check your repository structure."
+            exit 1
           fi
 
-      - name: Frontend HTML validation
-        working-directory: ./frontend
+      - name: Lint frontend (HTML/CSS/JS)
         run: |
-          if ls *.html 1> /dev/null 2>&1; then
-            echo "HTML files found. (Add validation here if needed)"
-          else
-            echo "No HTML files found in ./frontend."
-          fi
+          echo "No npm build needed. Consider adding HTML/CSS/JS linters if desired."
