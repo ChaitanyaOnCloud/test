@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -13,10 +15,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -29,7 +31,7 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy frontend (static files)
+      - name: Deploy frontend (static)
+        working-directory: ./frontend
         run: |
-          echo "Frontend is static HTML/CSS/JS. No build required."
-          # Optionally, add deployment steps for static files if needed
+          echo "Frontend deployment step (static HTML/CSS/JS, no build needed)"
