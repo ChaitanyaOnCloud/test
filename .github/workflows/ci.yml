@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,15 +21,21 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install flake8
+          if [ ! -f requirements.txt ]; then echo 'requirements.txt missing in ./backend'; exit 1; fi
+          pip install -r requirements.txt
+
+      - name: Run backend tests
+        working-directory: ./backend
+        run: |
+          if [ -f tests/test_main.py ]; then pytest; else echo 'No tests found'; fi
 
       - name: Lint backend
         working-directory: ./backend
         run: |
+          if [ -f requirements.txt ]; then pip install flake8; fi
           flake8 .
 
-      - name: List frontend files
+      - name: Check frontend files
         working-directory: ./frontend
         run: |
           ls -l
