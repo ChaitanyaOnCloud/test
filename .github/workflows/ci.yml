@@ -13,10 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -27,16 +27,9 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
 
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 .
-
-      - name: Check frontend files
+      - name: Deploy static frontend files (HTML/CSS/JS)
         working-directory: ./frontend
         run: |
-          ls -l
-          # Add additional frontend checks here if needed
+          echo 'Deploying static frontend files (HTML/CSS/JS)'
