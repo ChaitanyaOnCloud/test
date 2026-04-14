@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
@@ -29,4 +29,4 @@ jobs:
           cd ./backend
           pytest
 
-      # No npm install or frontend build steps needed
+      # No npm install or frontend build steps required
