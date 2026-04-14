@@ -20,17 +20,25 @@ jobs:
 
       - name: Install backend dependencies
         run: |
-          cd backend
           pip install --upgrade pip
           pip install -r requirements.txt
+        working-directory: ./backend
+        shell: bash
 
       - name: Run backend tests
         run: |
-          cd backend
           pytest
+        working-directory: ./backend
+        shell: bash
+
+      - name: Validate frontend files
+        run: |
+          ls -l
+        working-directory: ./frontend
+        shell: bash
 
       - name: Archive frontend static files
         uses: actions/upload-artifact@v3
         with:
           name: frontend-static
-          path: frontend/
+          path: ./frontend/
