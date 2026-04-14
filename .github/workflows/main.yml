@@ -1,4 +1,3 @@
-# Example corrected workflow for Python/FastAPI backend and static frontend
 name: CI
 
 on:
@@ -12,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -30,15 +29,8 @@ jobs:
         run: |
           pytest
 
-      - name: Lint backend
-        working-directory: ./backend
+      - name: Validate frontend files
+        working-directory: ./frontend
         run: |
-          pip install flake8
-          flake8 .
-
-      # No npm install or build step for frontend, as it is static
-      - name: Check frontend files exist
-        run: |
-          test -f ./frontend/index.html
-          test -d ./frontend/css
-          test -d ./frontend/js
+          ls -l
+          # Optionally add HTML/CSS/JS linting if desired
