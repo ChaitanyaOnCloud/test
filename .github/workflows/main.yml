@@ -12,20 +12,30 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Set up Python 3.10
+
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-      - name: Install dependencies
+          python-version: '3.11'
+
+      - name: Install backend dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
       - name: Run backend tests
         working-directory: ./backend
         run: |
           pytest
-      - name: Run frontend checks
-        working-directory: ./frontend
+
+      - name: Deploy backend (optional)
+        if: github.ref == 'refs/heads/main'
+        working-directory: ./backend
         run: |
-          ls -la
+          echo "Deploy step here"
+
+      # No npm install or build steps for frontend, as it is static HTML/CSS/JS
+      - name: Verify frontend files
+        run: |
+          ls -l ./frontend
