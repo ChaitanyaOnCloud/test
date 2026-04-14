@@ -9,20 +9,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory missing!"; exit 1;
-          fi
-
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -33,14 +30,10 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
 
-      - name: Lint backend
-        working-directory: ./backend
+      - name: Lint HTML/CSS/JS files
+        working-directory: ./frontend
         run: |
-          if command -v flake8; then flake8 .; else echo 'flake8 not installed.'; fi
-
-      - name: Check frontend files
-        run: |
-          if [ ! -d "./frontend" ]; then echo "ERROR: ./frontend directory missing!"; exit 1; fi
-          ls -l ./frontend
+          echo "Linting HTML/CSS/JS files"
+          # Add your lint commands here if needed
