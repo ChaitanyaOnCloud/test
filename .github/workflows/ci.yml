@@ -20,6 +20,13 @@ jobs:
             exit 1;
           fi
 
+      - name: Ensure frontend directory exists
+        run: |
+          if [ ! -d "./frontend" ]; then
+            echo "Frontend directory missing! Failing build.";
+            exit 1;
+          fi
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
@@ -33,6 +40,8 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
+          else
+            echo "requirements.txt not found. Skipping dependency install."
           fi
         working-directory: ./backend
 
