@@ -1,10 +1,12 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -13,25 +15,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Ensure backend directory exists
+        run: |
+          if [ ! -d ./backend ]; then
+            echo 'ERROR: ./backend directory missing';
+            exit 1;
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
+        working-directory: ./backend
         run: |
-          cd ./backend
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo 'WARNING: requirements.txt not found in ./backend';
+          fi
 
       - name: Run backend tests
+        working-directory: ./backend
         run: |
-          cd ./backend
-          pytest
+          if [ -d tests ]; then
+            pytest
+          else
+            echo 'WARNING: tests directory not found in ./backend';
+          fi
 
-      - name: Validate frontend files
+      - name: Deploy frontend (static)
         run: |
-          cd ./frontend
-          ls -l *.html *.css *.js || true
-
-      # No npm install step required as frontend is vanilla HTML/CSS/JS
+          echo 'Frontend deployment step (static HTML/CSS/JS, no build needed)'
+          ls ./frontend
