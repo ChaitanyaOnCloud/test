@@ -31,5 +31,5 @@ jobs:
 
       - name: Deploy frontend (static files)
         run: |
-          echo 'Frontend is static HTML/CSS/JS. No build required.'
+          echo "Frontend is static HTML/CSS/JS. No build required."
           # Optionally, add deployment steps for static files if needed
