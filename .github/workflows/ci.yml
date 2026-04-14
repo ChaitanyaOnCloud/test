@@ -13,13 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory does not exist. Please check your repository structure.";
-            exit 1;
-          fi
-
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
@@ -34,7 +27,7 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
 
       - name: Lint backend
         working-directory: ./backend
@@ -44,5 +37,4 @@ jobs:
 
       - name: Check frontend files
         run: |
-          if [ ! -d "./frontend" ]; then echo "ERROR: ./frontend directory does not exist."; exit 1; fi
           ls -l ./frontend
