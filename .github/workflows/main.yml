@@ -2,50 +2,48 @@ name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Ensure backend directory exists
+        with:
+          fetch-depth: 0
+      - name: Verify backend directory exists
         run: |
           if [ ! -d ./backend ]; then
             echo 'ERROR: ./backend directory missing';
             exit 1;
           fi
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
+          python-version: '3.10'
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo 'WARNING: requirements.txt not found in ./backend';
-          fi
-
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -d tests ]; then
-            pytest
-          else
-            echo 'WARNING: tests directory not found in ./backend';
-          fi
-
-      - name: Deploy frontend (static)
+          pytest
+      - name: Lint backend
+        working-directory: ./backend
         run: |
-          echo 'Frontend deployment step (static HTML/CSS/JS, no build needed)'
-          ls ./frontend
+          pip install flake8
+          flake8 .
+      - name: Verify frontend directory exists
+        run: |
+          if [ ! -d ./frontend ]; then
+            echo 'ERROR: ./frontend directory missing';
+            exit 1;
+          fi
+      - name: Lint frontend (HTML/CSS/JS)
+        run: |
+          echo 'No build needed for vanilla frontend. Add linter if required.'
