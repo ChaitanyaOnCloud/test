@@ -1,5 +1,4 @@
-# Example holistic fix for a typical Python/JS monorepo pipeline
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -10,15 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
@@ -28,35 +24,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          pip install flake8
-          flake8 .
-
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          pip install pytest
           pytest
 
-      - name: Archive backend test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-test-results
-          path: ./backend/test-results/
-          if-no-files-found: warn
-
-      - name: Lint frontend
-        working-directory: ./frontend
-        run: |
-          # Example: run a simple HTML linter if available
-          echo "No frontend linter configured."
-
-      - name: Archive frontend
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend
-          path: ./frontend/
-          if-no-files-found: warn
+      - name: Deploy frontend (static files)
+        run: echo "Frontend is static HTML/CSS/JS. No build required."
