@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies (backend)
+      - name: Install backend dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
@@ -29,8 +29,5 @@ jobs:
         run: |
           pytest
 
-      - name: Validate frontend (static files)
-        working-directory: ./frontend
-        run: |
-          ls -l
-          # Add any static validation commands here if needed
+      # No npm install or frontend build steps required
+      # Frontend is vanilla HTML/CSS/JS
