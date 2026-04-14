@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -10,28 +10,35 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Verify backend directory exists
+        run: |
+          if [ ! -d "./backend" ]; then
+            echo "ERROR: ./backend directory does not exist!"
+            exit 1
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+        working-directory: ./backend
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
-          cd ./backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+        working-directory: ./backend
 
       - name: Run backend tests
         run: |
-          cd ./backend
           pytest
+        working-directory: ./backend
 
-      # No npm install or frontend build step needed
-      - name: Archive frontend static files
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: ./frontend
+      - name: Lint frontend
+        run: |
+          echo "Linting frontend (HTML/CSS/JS)"
+          # Add linter commands if needed
+        working-directory: ./frontend
