@@ -13,23 +13,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
+        working-directory: ./backend
         run: |
-          cd ./backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run backend tests
+        working-directory: ./backend
         run: |
-          cd ./backend
           pytest
 
-      - name: Archive frontend (static files)
+      - name: Archive frontend static files
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: frontend-static
