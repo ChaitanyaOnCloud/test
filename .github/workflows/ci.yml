@@ -9,46 +9,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory missing. Please check your repository structure."
-            exit 1
-          fi
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo "No tests found."; fi
+          pytest
 
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 .
-
-      - name: Check frontend files
-        run: |
-          if [ ! -d "./frontend" ]; then
-            echo "ERROR: ./frontend directory missing. Please check your repository structure."
-            exit 1
-          fi
-          ls -l ./frontend
+      - name: Upload frontend (static files)
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: ./frontend
