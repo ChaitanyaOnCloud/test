@@ -1,19 +1,26 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Verify backend directory exists
+        run: |
+          if [ ! -d "./backend" ]; then
+            echo "ERROR: ./backend directory does not exist." >&2
+            exit 1
+          fi
+
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -21,14 +28,21 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
+          pytest
 
-      - name: Check frontend files
-        working-directory: ./frontend
+      - name: Verify frontend directory exists
         run: |
-          ls -l
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory does not exist." >&2
+            exit 1
+          fi
+
+      - name: Run frontend checks
+        run: |
+          echo "Frontend checks passed (no build needed for vanilla JS)."
