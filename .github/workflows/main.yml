@@ -1,29 +1,41 @@
 name: CI
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Python 3.11
+        uses: actions/checkout@v4
+
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Install dependencies (backend)
+
+      - name: Install backend dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install flake8
+
+      - name: Lint with flake8
+        working-directory: ./backend
+        run: |
+          flake8 .
+
       - name: Run backend tests
         working-directory: ./backend
         run: |
           pytest
-      - name: Run frontend checks
+
+      - name: Check frontend files
         working-directory: ./frontend
         run: |
-          echo "No build needed for frontend."
+          ls -l
