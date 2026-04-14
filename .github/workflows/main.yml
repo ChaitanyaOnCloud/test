@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -29,7 +29,8 @@ jobs:
         run: |
           pytest
 
-      - name: Validate frontend (HTML/CSS/JS)
+      - name: Validate frontend
         working-directory: ./frontend
         run: |
-          echo "No build required for vanilla frontend."
+          ls -l
+          # Add any frontend validation commands here (e.g., htmlhint if needed)
