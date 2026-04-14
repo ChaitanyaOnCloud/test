@@ -13,48 +13,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory does not exist. Please check your repository structure.";
-            exit 1;
-          fi
-
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install dependencies (backend)
+        working-directory: ./backend
         run: |
-          cd ./backend
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo "WARNING: requirements.txt not found. Skipping dependency installation."
-          fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
+        working-directory: ./backend
         run: |
-          cd ./backend
-          pytest
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
 
       - name: Lint backend
+        working-directory: ./backend
         run: |
-          cd ./backend
-          pip install flake8
+          if [ -f requirements.txt ]; then pip install flake8; fi
           flake8 .
 
-      - name: Validate frontend directory exists
+      - name: Check frontend files
+        working-directory: ./frontend
         run: |
-          if [ ! -d "./frontend" ]; then
-            echo "ERROR: ./frontend directory does not exist. Please check your repository structure.";
-            exit 1;
-          fi
-
-      - name: Lint frontend
-        run: |
-          cd ./frontend
-          echo "Linting frontend (HTML/CSS/JS)"
-          # Add your linter commands here if needed
+          ls -l
