@@ -1,4 +1,4 @@
-# Example fixed workflow for Python/FastAPI backend and static frontend
+# CI workflow for Python/FastAPI backend and static frontend
 name: CI
 
 on:
@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  backend-build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,7 +28,15 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run backend tests
-        run: |
-          pytest
+        run: pytest
 
-  # Optionally, add a job to check frontend static files (HTML/CSS/JS linting) if desired
+  frontend-static-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: List frontend files
+        run: ls -l ./frontend
+
+      # Optionally, add HTML/CSS/JS linting here if desired
