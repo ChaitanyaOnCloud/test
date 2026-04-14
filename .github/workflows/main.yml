@@ -13,7 +13,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Verify backend directory exists
+        run: |
+          if [ ! -d "./backend" ]; then
+            echo "ERROR: ./backend directory does not exist!" >&2
+            exit 1
+          fi
+
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -29,8 +36,15 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy frontend (static files)
-        if: success()
+      - name: Verify frontend directory exists
         run: |
-          echo "Frontend is vanilla HTML/CSS/JS. No build required."
-          # Optionally, add deployment steps for static files here
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory does not exist!" >&2
+            exit 1
+          fi
+
+      - name: Run frontend lint
+        working-directory: ./frontend
+        run: |
+          echo "Linting frontend (HTML/CSS/JS)"
+          # Add lint commands here if needed
