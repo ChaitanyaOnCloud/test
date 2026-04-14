@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -29,5 +29,5 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy frontend (static files)
-        run: echo 'Frontend is static HTML/CSS/JS, no build required.'
+      - name: Frontend check (no build needed)
+        run: echo "No build needed for vanilla frontend."
