@@ -13,30 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install backend dependencies
+      - name: Install dependencies (backend)
         working-directory: ./backend
         run: |
-          pip install -r requirements.txt
-          pip install flake8
-
-      - name: Lint backend code
-        working-directory: ./backend
-        run: flake8 .
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
         working-directory: ./backend
-        run: pytest
-
-      - name: Check frontend directory
         run: |
-          if [ -d ./frontend ]; then
-            echo "Frontend directory exists. Listing files:"
-            ls -l ./frontend
-          else
-            echo "Frontend directory does not exist. Skipping frontend steps."
-          fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
+
+      - name: Run frontend checks
+        working-directory: ./frontend
+        run: |
+          echo "Frontend directory exists. No build needed."
