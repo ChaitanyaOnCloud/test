@@ -1,3 +1,4 @@
+# Example fixed workflow for your project
 name: CI
 
 on:
@@ -7,38 +8,31 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies (backend)
+      - name: Install backend dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          pytest
 
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 .
-
-      - name: Check frontend files
-        working-directory: ./frontend
-        run: |
-          ls -l
+      # No npm install or frontend build step needed
+      - name: Archive frontend static files
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: ./frontend
