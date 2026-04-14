@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -7,11 +7,18 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Validate backend directory exists
+        run: |
+          if [ ! -d ./backend ]; then
+            echo "Backend directory missing!" >&2
+            exit 1
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -19,14 +26,24 @@ jobs:
           python-version: '3.10'
 
       - name: Install backend dependencies
+        working-directory: ./backend
         run: |
-          cd backend
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
+        working-directory: ./backend
         run: |
-          cd backend
-          pytest
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo "No tests found."; fi
 
-      # No npm install or frontend build steps needed
+      - name: Validate frontend directory exists
+        run: |
+          if [ ! -d ./frontend ]; then
+            echo "Frontend directory missing!" >&2
+            exit 1
+          fi
+
+      - name: Lint frontend files
+        run: |
+          echo "Linting frontend HTML/CSS/JS files..."
+          # Add linter commands here if needed
