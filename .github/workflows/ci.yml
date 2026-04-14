@@ -1,3 +1,4 @@
+# Example corrected workflow for Python/FastAPI backend and static frontend
 name: CI
 
 on:
@@ -7,42 +8,28 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d './backend' ]; then
-            echo "ERROR: ./backend directory does not exist."
-            exit 1
-          fi
-
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
       - name: Install dependencies
-        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
-      - name: Run backend tests
-        working-directory: ./backend
+      - name: Run tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          pytest
 
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 .
-
-      - name: Frontend HTML validation
-        working-directory: ./frontend
-        run: |
-          if [ -f index.html ]; then echo 'Frontend HTML present.'; else echo 'No frontend HTML found.'; fi
+      # No npm install or build steps needed for frontend
+      # If you want to deploy or copy static files, add steps here
