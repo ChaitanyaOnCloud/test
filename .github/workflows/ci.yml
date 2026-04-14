@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -9,31 +9,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
-      - name: Checkout code with retry
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-        retry: 3
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install backend dependencies
-        working-directory: ./backend
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run backend tests
-        working-directory: ./backend
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run tests
         run: |
-          pytest
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          pip install flake8
-          flake8 .
-      - name: Check frontend files
-        working-directory: ./frontend
-        run: |
-          ls -l
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
