@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -26,7 +28,7 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -f tests ]; then pytest; fi
+          if [ -f tests ]; then pytest; fi
 
       - name: Deploy frontend (static)
         working-directory: ./frontend
