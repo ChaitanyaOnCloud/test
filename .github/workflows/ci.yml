@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python 3.11
@@ -21,30 +21,17 @@ jobs:
       - name: Install dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo 'requirements.txt not found in ./backend'; exit 1
-          fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pytest
-          else
-            echo 'No tests to run: requirements.txt not found.'
-          fi
+          if [ -f requirements.txt ]; then pytest; fi
 
       - name: Lint backend
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install flake8
-            flake8 .
-          else
-            echo 'No linting: requirements.txt not found.'
-          fi
+          if [ -f requirements.txt ]; then flake8 .; fi
 
       - name: Check frontend files
         working-directory: ./frontend
