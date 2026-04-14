@@ -7,60 +7,38 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "Backend directory missing! Failing build.";
-            exit 1;
-          fi
-
-      - name: Ensure frontend directory exists
-        run: |
-          if [ ! -d "./frontend" ]; then
-            echo "Frontend directory missing! Failing build.";
-            exit 1;
-          fi
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-        working-directory: backend
-
-      - name: Install dependencies
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo "requirements.txt not found. Skipping dependency install."
-          fi
-        working-directory: backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
+        working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then
-            pytest
-          else
-            echo "No tests found."
-          fi
-        working-directory: backend
+          pytest
 
-      - name: Lint backend
+      - name: Lint backend code
+        working-directory: ./backend
         run: |
           pip install flake8
           flake8 .
-        working-directory: backend
 
-      - name: Frontend HTML validation
-        run: |
-          echo "No build needed for frontend."
-        working-directory: frontend
+      # No npm install or frontend build step needed, as frontend is static HTML/CSS/JS
+      - name: Archive frontend static files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: ./frontend
