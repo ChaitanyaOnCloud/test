@@ -26,6 +26,14 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ./backend
 
+      - name: Install pytest
+        run: pip install pytest
+        working-directory: ./backend
+
+      - name: List backend files (debug)
+        run: ls -al
+        working-directory: ./backend
+
       - name: Run backend tests
         run: pytest
         working-directory: ./backend
