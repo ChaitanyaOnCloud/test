@@ -13,8 +13,15 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Ensure backend directory exists
+        run: |
+          if [ ! -d "./backend" ]; then
+            echo "ERROR: ./backend directory missing. Please check your repository structure."
+            exit 1
+          fi
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
@@ -30,7 +37,7 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo "No tests found."; fi
 
       - name: Lint backend
         working-directory: ./backend
@@ -39,6 +46,9 @@ jobs:
           flake8 .
 
       - name: Check frontend files
-        working-directory: ./frontend
         run: |
-          ls -l
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory missing. Please check your repository structure."
+            exit 1
+          fi
+          ls -l ./frontend
