@@ -21,14 +21,15 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -f tests ]; then pytest; fi
+          pytest
 
-      - name: Deploy frontend (static)
-        working-directory: ./frontend
+      - name: Copy frontend files
         run: |
-          echo "Frontend build step (static HTML/CSS/JS, no npm needed)"
+          mkdir -p dist/frontend
+          cp -r ./frontend/* dist/frontend/
