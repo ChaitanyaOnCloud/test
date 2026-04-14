@@ -1,3 +1,4 @@
+# Example fixed workflow for Python/FastAPI backend and static frontend
 name: CI
 
 on:
@@ -7,13 +8,13 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -29,7 +30,10 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy frontend (static)
-        working-directory: ./frontend
-        run: |
-          echo "Frontend deployment step (static HTML/CSS/JS, no build needed)"
+      # No npm install or build step needed for frontend
+      - name: Archive frontend static files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: ./frontend
