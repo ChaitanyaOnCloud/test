@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -15,49 +15,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Ensure backend directory exists
+      - name: Validate backend directory exists
         run: |
-          if [ ! -d "backend" ]; then
-            echo "WARNING: backend directory missing. Creating empty directory."
-            mkdir backend
+          if [ ! -d "./backend" ]; then
+            echo "ERROR: ./backend directory does not exist. Check your repository structure."
+            exit 1
           fi
 
-      - name: Set up Python 3.10
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt found in backend. Skipping dependency install."
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -d tests ]; then
-            pytest tests
-          else
-            echo "No tests directory found in backend. Skipping tests."
+          pytest
+
+      - name: Validate frontend directory exists
+        run: |
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory does not exist. Check your repository structure."
+            exit 1
           fi
 
-      - name: Deploy backend
-        if: github.ref == 'refs/heads/main'
-        working-directory: ./backend
-        run: |
-          echo "Deploy step placeholder. Implement deployment logic here."
-
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Deploy frontend
+      - name: Run frontend lint
         working-directory: ./frontend
         run: |
-          echo "Deploy step placeholder. Implement deployment logic here."
+          echo "Linting frontend (HTML/CSS/JS)"
+          # Add lint commands here if needed
