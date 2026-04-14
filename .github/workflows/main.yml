@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -12,44 +12,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "WARNING: ./backend directory missing. Creating stub directory."
-            mkdir -p ./backend
-          fi
-
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install backend dependencies
+      - name: Install dependencies (Backend)
         working-directory: ./backend
         run: |
-          if [ -f "requirements.txt" ]; then
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt found in ./backend. Skipping dependency install."
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f "pytest.ini" ] || [ -d "tests" ]; then
-            pytest || echo "No tests found. Skipping."
-          else
-            echo "No tests found in ./backend. Skipping."
-          fi
+          pytest
 
-      - name: Deploy frontend (static)
+      - name: Deploy frontend (Static)
+        working-directory: ./frontend
         run: |
-          echo "Frontend directory: ./frontend"
-          if [ ! -d "./frontend" ]; then
-            echo "WARNING: ./frontend directory missing. Creating stub directory."
-            mkdir -p ./frontend
-          fi
-          echo "No build needed for vanilla HTML/CSS/JS."
+          echo "Frontend build step (if needed)"
+          # No npm build needed for vanilla HTML/CSS/JS
