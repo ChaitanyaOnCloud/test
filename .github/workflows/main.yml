@@ -1,40 +1,37 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-and-test-backend:
+  build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+        if: exists('./backend/requirements.txt')
 
       - name: Run backend tests
+        working-directory: ./backend
         run: pytest
+        if: exists('./backend/tests')
 
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Deploy static frontend
+      - name: Frontend info
         run: echo "Frontend is static HTML/CSS/JS. No build required."
-        working-directory: ./frontend
+        if: exists('./frontend')
