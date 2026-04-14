@@ -10,10 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -21,21 +21,24 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ ! -f requirements.txt ]; then echo 'requirements.txt missing in ./backend'; exit 1; fi
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f tests/test_main.py ]; then pytest; else echo 'No tests found'; fi
+          pytest
 
       - name: Lint backend
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
+          pip install flake8
           flake8 .
 
       - name: Check frontend files
-        working-directory: ./frontend
         run: |
-          ls -l
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory does not exist. Check your repository structure or checkout step."
+            exit 1
+          fi
+          echo "Frontend directory exists."
