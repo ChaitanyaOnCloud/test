@@ -7,48 +7,33 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory does not exist. Please check your repository structure.";
-            exit 1;
-          fi
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      - name: Install backend dependencies
-        working-directory: ./backend
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
       - name: Run backend tests
-        working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          pytest
 
       - name: Lint backend
-        working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 . || true
+          pip install flake8
+          flake8 .
 
-      - name: Frontend check
-        run: |
-          if [ ! -d "./frontend" ]; then
-            echo "ERROR: ./frontend directory does not exist. Please check your repository structure.";
-            exit 1;
-          fi
-          echo "Frontend directory exists. No build needed."
+  # No npm install or build steps for frontend, as it is static HTML/CSS/JS
+  # Optionally, add a job to deploy or check static files if needed
