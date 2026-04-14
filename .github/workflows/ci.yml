@@ -48,4 +48,7 @@ jobs:
       - name: Lint frontend files
         run: |
           echo 'Linting frontend HTML/CSS/JS files...'
-          # Add linter commands here if needed
+          # Example linter commands (uncomment if you have linters installed):
+          # find ./frontend -name "*.js" -exec eslint {} +
+          # find ./frontend -name "*.css" -exec stylelint {} +
+          # find ./frontend -name "*.html" -exec htmlhint {} +
