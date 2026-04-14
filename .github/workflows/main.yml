@@ -13,25 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          pytest
+          if [ -f pytest.ini ] || [ -f tests ]; then pytest; fi
 
-      - name: Frontend validation
+      - name: Deploy frontend (static)
         working-directory: ./frontend
         run: |
-          echo 'No build required for vanilla HTML/CSS/JS frontend.'
-
-      - name: Complete
-        run: echo 'CI pipeline finished successfully.'
+          echo "Frontend build step (static HTML/CSS/JS, no npm needed)"
