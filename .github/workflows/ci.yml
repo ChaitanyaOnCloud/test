@@ -24,24 +24,27 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-        working-directory: ./backend
 
       - name: Install dependencies
         run: |
+          cd ./backend
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-        working-directory: ./backend
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "WARNING: requirements.txt not found. Skipping dependency installation."
+          fi
 
       - name: Run backend tests
         run: |
+          cd ./backend
           pytest
-        working-directory: ./backend
 
       - name: Lint backend
         run: |
+          cd ./backend
           pip install flake8
           flake8 .
-        working-directory: ./backend
 
       - name: Validate frontend directory exists
         run: |
@@ -52,6 +55,6 @@ jobs:
 
       - name: Lint frontend
         run: |
+          cd ./frontend
           echo "Linting frontend (HTML/CSS/JS)"
           # Add your linter commands here if needed
-        working-directory: ./frontend
