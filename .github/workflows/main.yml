@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -30,6 +30,6 @@ jobs:
           pytest
 
       - name: Deploy frontend (static files)
+        working-directory: ./frontend
         run: |
           echo "Frontend is static HTML/CSS/JS. No build required."
-          # Add deployment steps here if needed
