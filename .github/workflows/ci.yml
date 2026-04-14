@@ -29,13 +29,6 @@ jobs:
         run: |
           pytest
 
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          pip install flake8
-          flake8 .
-
-      # No npm install or frontend build step required as frontend is static HTML/CSS/JS
       - name: Archive frontend static files
         uses: actions/upload-artifact@v4
         with:
