@@ -10,10 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -22,13 +22,13 @@ jobs:
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f tests ]; then pytest; else echo 'No tests directory found.'; fi
+          pytest
 
-      - name: List frontend directory (if exists)
+      - name: Check frontend directory exists
         run: |
-          if [ -d ./frontend ]; then ls -l ./frontend; else echo './frontend does not exist, skipping.'; fi
+          if [ -d ./frontend ]; then ls -l ./frontend; else echo 'WARNING: ./frontend directory missing. Skipping frontend steps.'; fi
