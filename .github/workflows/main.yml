@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -15,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
@@ -25,13 +23,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        if: exists('./backend/requirements.txt')
 
       - name: Run backend tests
         working-directory: ./backend
-        run: pytest
-        if: exists('./backend/tests')
+        run: |
+          pytest
 
-      - name: Frontend info
-        run: echo "Frontend is static HTML/CSS/JS. No build required."
-        if: exists('./frontend')
+      - name: Deploy frontend (static files)
+        run: |
+          echo "Frontend is static HTML/CSS/JS. No build required."
+          # Add deployment steps here if needed, e.g., copy files to server
