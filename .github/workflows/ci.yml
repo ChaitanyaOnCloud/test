@@ -7,35 +7,26 @@ on:
     branches: [ main ]
 
 jobs:
-  build-backend:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      - name: Install dependencies
-        working-directory: ./backend
+      - name: Install backend dependencies
         run: |
+          cd ./backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run backend tests
-        working-directory: ./backend
         run: |
+          cd ./backend
           pytest
 
-  build-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Lint HTML/CSS/JS
-        working-directory: ./frontend
-        run: |
-          echo "No build needed for vanilla frontend."
+      # No npm install or frontend build steps needed
