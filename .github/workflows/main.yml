@@ -29,6 +29,12 @@ jobs:
         run: |
           pytest
 
+      - name: Validate frontend files
+        working-directory: ./frontend
+        run: |
+          ls -l
+          if [ ! -f index.html ]; then echo "index.html missing"; exit 1; fi
+
       - name: Deploy frontend (static files)
         if: github.ref == 'refs/heads/main'
         run: echo "Deploying frontend static files..."
