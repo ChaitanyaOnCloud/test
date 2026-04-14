@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -29,7 +31,8 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy frontend (static files)
-        run: |
-          echo 'Frontend is static HTML/CSS/JS. No build required.'
-          # Optionally, copy files or deploy as needed
+      - name: Deploy (example step)
+        if: github.ref == 'refs/heads/main'
+        run: echo "Deploy step here"
+
+# Note: No npm install or frontend build steps are included, as the frontend is vanilla HTML/CSS/JS.
