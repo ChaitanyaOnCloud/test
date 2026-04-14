@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -29,8 +31,7 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy frontend (static)
-        if: success()
+      - name: Run frontend checks
         working-directory: ./frontend
         run: |
-          echo "Frontend deployment step (static HTML/CSS/JS)"
+          echo "No build needed for frontend."
