@@ -7,11 +7,11 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,4 +29,9 @@ jobs:
           cd ./backend
           pytest
 
-      # No npm install or frontend build steps required
+      # No npm install or frontend build step needed
+      - name: Archive frontend static files
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: ./frontend
