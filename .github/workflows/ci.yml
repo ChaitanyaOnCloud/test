@@ -39,3 +39,4 @@ jobs:
         working-directory: ./frontend
         run: |
           echo "No build needed for frontend."
+          ls
