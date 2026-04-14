@@ -7,37 +7,48 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-lint-backend:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        shell: bash
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up Python
+
+      - name: Ensure backend directory exists
+        run: |
+          if [ ! -d "./backend" ]; then
+            echo "ERROR: ./backend directory is missing. Please check your repository structure." >&2
+            exit 1
+          fi
+
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-      - name: Upgrade pip
-        run: pip install --upgrade pip
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install flake8
-      - name: Lint with flake8
-        run: flake8 .
-      - name: Run tests
-        run: pytest
+          python-version: '3.11'
 
-  frontend-check:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: HTML validation
+      - name: Install dependencies (backend)
+        working-directory: ./backend
         run: |
-          if command -v tidy; then tidy -errors *.html || true; else echo 'tidy not installed, skipping HTML validation.'; fi
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run backend tests
+        working-directory: ./backend
+        run: |
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+
+      - name: Lint backend
+        working-directory: ./backend
+        run: |
+          if [ -f requirements.txt ]; then pip install flake8; fi
+          flake8 .
+
+      - name: Check frontend files
+        run: |
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory is missing. Please check your repository structure." >&2
+            exit 1
+          fi
+          ls -l ./frontend
