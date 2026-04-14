@@ -1,22 +1,24 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -29,7 +31,7 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy frontend (static)
+      - name: Deploy static frontend files
         working-directory: ./frontend
         run: |
-          echo "Frontend deployment step (static HTML/CSS/JS, no build needed)"
+          echo "Deploying static frontend files..."
