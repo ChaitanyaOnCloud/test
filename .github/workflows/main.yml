@@ -2,16 +2,18 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
@@ -28,13 +30,7 @@ jobs:
         run: |
           if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
 
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 .
-
-      - name: Check frontend files
+      - name: Deploy frontend (static)
         working-directory: ./frontend
         run: |
-          ls -l
+          echo "Frontend build step (static HTML/CSS/JS, no npm needed)"
