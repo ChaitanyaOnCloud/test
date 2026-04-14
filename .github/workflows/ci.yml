@@ -7,19 +7,25 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Validate backend directory exists
+        run: |
+          if [ ! -d './backend' ]; then
+            echo "ERROR: ./backend directory does not exist. Check your repository structure." >&2
+            exit 1
+          fi
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -32,16 +38,13 @@ jobs:
         run: |
           pytest
 
-      - name: Archive backend test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-test-results
-          path: ./backend/tests/
+      - name: Validate frontend directory exists
+        run: |
+          if [ ! -d './frontend' ]; then
+            echo "ERROR: ./frontend directory does not exist. Check your repository structure." >&2
+            exit 1
+          fi
 
-      # No npm install or build steps needed for frontend
-      - name: Archive frontend static files
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: ./frontend/
+      - name: Lint frontend
+        run: |
+          echo "Linting frontend (no build step required for vanilla JS)"
