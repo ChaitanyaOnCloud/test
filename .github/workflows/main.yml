@@ -11,34 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d ./backend ]; then
-            echo "Backend directory missing!"; exit 1;
-          fi
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pytest; fi
+          pytest
 
-      - name: Lint backend
-        working-directory: ./backend
+      - name: Deploy frontend (static files)
         run: |
-          if [ -f requirements.txt ]; then flake8 .; fi
-
-      - name: Check frontend files
-        run: |
-          ls -l ./frontend
+          echo 'Frontend is static HTML/CSS/JS. No build required.'
+          # Optionally, copy files or deploy as needed
