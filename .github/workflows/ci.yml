@@ -13,14 +13,14 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Ensure backend directory exists
         run: |
           if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory is missing. Please check your repository structure.";
-            exit 1;
+            echo "Error: ./backend directory does not exist!" >&2
+            exit 1
           fi
 
       - name: Set up Python 3.10
@@ -37,7 +37,7 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo "No tests found."; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
       - name: Lint backend
         working-directory: ./backend
@@ -45,8 +45,10 @@ jobs:
           if [ -f requirements.txt ]; then pip install flake8; fi
           flake8 .
 
-      - name: Frontend check
-        working-directory: ./frontend
+      - name: Check frontend files
         run: |
-          echo "Frontend static files present:"
-          ls -l
+          if [ ! -d "./frontend" ]; then
+            echo "Error: ./frontend directory does not exist!" >&2
+            exit 1
+          fi
+          ls -l ./frontend
