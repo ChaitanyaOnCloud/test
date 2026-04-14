@@ -1,3 +1,4 @@
+# Example corrected workflow for Python/FastAPI backend and static frontend
 name: CI
 
 on:
@@ -9,6 +10,9 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,19 +22,13 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
-          cd ./backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run backend tests
+      - name: Run tests
         run: |
-          cd ./backend
           pytest
 
-      - name: Archive frontend static files
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: ./frontend
+      # No npm install or frontend build steps needed
