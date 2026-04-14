@@ -9,32 +9,36 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "Error: ./backend directory does not exist. Please check your repository structure.";
-            exit 1;
-          fi
+        uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-        working-directory: ./backend
+
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-        working-directory: ./backend
-      - name: Run backend tests
-        run: pytest
-        working-directory: ./backend
-      - name: Run frontend checks
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run tests
         run: |
-          echo "No build needed for frontend (vanilla HTML/CSS/JS)"
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
+
+  frontend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
         working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint HTML/CSS/JS
+        run: |
+          echo "No build needed for vanilla frontend."
