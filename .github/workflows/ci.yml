@@ -10,9 +10,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,13 +19,16 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Run backend tests
+        working-directory: ./backend
         run: |
           pytest
 
-      # No npm install or frontend build steps needed
+      # No npm install or Node.js steps needed for frontend
+      # If you want to check for HTML/CSS/JS linting, add those steps here, but do not run npm install
