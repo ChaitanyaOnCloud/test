@@ -35,4 +35,4 @@ jobs:
           ls -l
           # Optionally add HTML/CSS/JS linting if desired
 
-      # No npm install step, since frontend does not require it
+      # No npm install step, as frontend is vanilla and does not require npm
