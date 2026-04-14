@@ -1,3 +1,5 @@
+name: CI
+
 on:
   push:
     branches: [ main ]
@@ -7,40 +9,39 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Ensure backend directory exists
+        run: |
+          if [ ! -d "./backend" ]; then
+            echo "Backend directory missing! Failing build." && exit 1
+          fi
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-          pip install flake8
-
-      - name: Lint with flake8
-        working-directory: ./backend
-        run: |
-          flake8 .
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pytest
-          fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo "No tests found."; fi
 
-      - name: Frontend HTML validation
-        working-directory: ./frontend
+      - name: Lint backend
+        working-directory: ./backend
         run: |
-          # Add HTML validation commands here if needed
-          echo 'No frontend build required.'
+          if [ -f requirements.txt ]; then pip install flake8; fi
+          flake8 .
+
+      - name: Check frontend files
+        run: |
+          if [ ! -d "./frontend" ]; then echo "Frontend directory missing! Failing build." && exit 1; fi
+          ls -l ./frontend
