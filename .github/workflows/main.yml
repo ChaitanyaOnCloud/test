@@ -9,22 +9,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          cd ./backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Run backend tests
         run: |
-          if [ -f requirements.txt ]; then pytest; fi
+          cd ./backend
+          pytest
+
+      - name: Lint backend
+        run: |
+          cd ./backend
+          flake8
+
+      # No npm install or frontend build step needed
