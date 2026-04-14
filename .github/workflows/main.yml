@@ -1,41 +1,42 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build-backend:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install dependencies
+
+      - name: Install backend dependencies
         run: |
+          cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run tests
+
+      - name: Run backend tests
         run: |
+          cd backend
           pytest
 
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Deploy static files
-        run: echo 'Deploying static frontend files (HTML/CSS/JS)' # Replace with actual deploy command if needed
+      - name: Lint backend
+        run: |
+          cd backend
+          flake8 .
+
+      # No npm install or Node.js steps needed for frontend
+      - name: Archive frontend static files
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-static
+          path: frontend/
