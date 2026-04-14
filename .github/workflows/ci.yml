@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -7,26 +7,51 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Verify backend directory exists
+        run: |
+          if [ ! -d ./backend ]; then
+            echo "Backend directory missing!"
+            exit 1
+          fi
+
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+        working-directory: ./backend
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
-          cd ./backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+        working-directory: ./backend
 
       - name: Run backend tests
         run: |
-          cd ./backend
           pytest
+        working-directory: ./backend
 
-      # No npm install or frontend build steps needed
+      - name: Lint backend
+        run: |
+          pip install flake8
+          flake8 .
+        working-directory: ./backend
+
+      - name: Verify frontend directory exists
+        run: |
+          if [ ! -d ./frontend ]; then
+            echo "Frontend directory missing!"
+            exit 1
+          fi
+
+      - name: Lint frontend
+        run: |
+          echo "Linting frontend (HTML/CSS/JS)"
+          # Add HTML/CSS/JS linting commands here if needed
+        working-directory: ./frontend
