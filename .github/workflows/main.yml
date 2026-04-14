@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 on:
   push:
     branches: [ main ]
@@ -10,30 +10,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "./backend directory does not exist! Creating it."
-            mkdir -p ./backend
-          fi
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-      - name: Install backend dependencies
+          python-version: '3.10'
+      - name: Install dependencies (backend)
+        working-directory: ./backend
         run: |
-          if [ -d "./backend" ]; then
-            pip install -r ./backend/requirements.txt || echo "requirements.txt missing, skipping install"
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Run backend tests
+        working-directory: ./backend
         run: |
-          if [ -d "./backend" ]; then
-            pytest ./backend || echo "No tests found in ./backend"
-          fi
-      - name: Deploy frontend (static)
+          pytest
+      - name: Run frontend checks
+        working-directory: ./frontend
         run: |
-          if [ -d "./frontend" ]; then
-            echo "Frontend directory exists. Ready for deployment."
-          else
-            echo "Frontend directory missing!"
-          fi
+          echo "No build required for vanilla HTML/CSS/JS"
