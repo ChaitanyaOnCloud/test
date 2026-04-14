@@ -2,44 +2,41 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory does not exist.";
-            exit 1;
-          fi
-
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+      - name: Install backend dependencies
         working-directory: ./backend
-
-      - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-        working-directory: ./backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
-        run: pytest
         working-directory: ./backend
+        run: |
+          pytest
 
-      - name: Frontend Lint (if any)
-        run: echo "No frontend build required."
-        working-directory: ./frontend
+      - name: Deploy (example step)
+        run: echo "Deployment step placeholder"
+
+      # No npm install or build steps needed for frontend
+      # Frontend is vanilla HTML/CSS/JS, so just check for existence
+      - name: Verify frontend files
+        run: |
+          test -f ./frontend/index.html
+          test -f ./frontend/style.css
