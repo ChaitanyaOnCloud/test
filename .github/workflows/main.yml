@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -13,7 +15,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Ensure backend directory exists
+        run: |
+          if [ ! -d "backend" ]; then
+            echo "ERROR: backend directory missing."
+            exit 1
+          fi
+
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -29,7 +38,6 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy frontend (static files)
+      - name: Deploy frontend (static)
         run: |
-          echo "Frontend is static HTML/CSS/JS. No build required."
-          # Optionally, add deployment steps for static files if needed
+          echo "Frontend is static HTML/CSS/JS, no build required."
