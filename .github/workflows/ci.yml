@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,8 +29,10 @@ jobs:
         run: |
           pytest
 
-      - name: Check frontend static files
+      - name: Lint backend
+        working-directory: ./backend
         run: |
-          test -f ./frontend/index.html && echo "Frontend index.html exists."
-          test -f ./frontend/style.css && echo "Frontend style.css exists."
-          test -f ./frontend/app.js && echo "Frontend app.js exists."
+          pip install flake8
+          flake8 .
+
+      # No npm install or frontend build steps needed for vanilla JS/HTML/CSS
