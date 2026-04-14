@@ -1,3 +1,4 @@
+# Example fixed workflow for Python/FastAPI backend and static frontend
 name: CI
 
 on:
@@ -9,24 +10,25 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
-          cd ./backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run backend tests
-        run: |
-          cd ./backend
-          pytest
+      - name: Run tests
+        run: pytest
 
-      # No npm install or frontend build steps needed
+      # No npm install or build steps needed for frontend
+      # If you want to deploy static frontend, add a step to copy ./frontend as needed
