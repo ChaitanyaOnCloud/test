@@ -13,44 +13,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "ERROR: ./backend directory does not exist. Check your repository structure."
-            exit 1
-          fi
-
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f "requirements.txt" ]; then
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt found in ./backend. Skipping dependency installation."
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f "tests" ]; then
-            pytest
-          else
-            echo "No tests directory found in ./backend. Skipping tests."
-          fi
+          pytest
 
-      - name: Validate frontend directory
+      - name: Deploy frontend (static files)
         run: |
-          if [ ! -d "./frontend" ]; then
-            echo "ERROR: ./frontend directory does not exist. Check your repository structure."
-            exit 1
-          fi
-
-      - name: Lint frontend files
-        run: |
-          echo "Linting HTML/CSS/JS in ./frontend (no npm build required)"
-          # Add your linting commands here if needed
+          echo "Frontend is static HTML/CSS/JS. No build required."
+          # Optionally, add deployment steps for static files if needed
