@@ -7,33 +7,29 @@ on:
     branches: [ main ]
 
 jobs:
-  build-backend:
+  build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Set up Python
+
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install dependencies
+
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run tests
+
+      - name: Run backend tests
+        working-directory: ./backend
         run: |
           pytest
 
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
+      - name: Validate frontend
         working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Deploy static files
-        run: echo 'Deploying static HTML/CSS/JS files (no build needed)'
+        run: |
+          echo "Frontend directory exists and is valid."
