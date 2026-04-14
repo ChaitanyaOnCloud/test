@@ -29,6 +29,10 @@ jobs:
         run: |
           pytest
 
+      - name: Validate frontend directory
+        run: |
+          ls ./frontend
+
       - name: Archive frontend static files
         uses: actions/upload-artifact@v4
         with:
