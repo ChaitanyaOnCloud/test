@@ -1,26 +1,17 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "Backend directory missing. Creating empty backend directory."
-            mkdir ./backend
-          fi
+        uses: actions/checkout@v4
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
@@ -30,27 +21,19 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt found in backend. Skipping install."
-          fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -d tests ]; then
-            pytest tests || true
-          else
-            echo "No tests directory found in backend. Skipping tests."
-          fi
+          if [ -f requirements.txt ]; then pytest; fi
 
-      - name: Deploy backend
+      - name: Lint backend
         working-directory: ./backend
         run: |
-          echo "Deploy step placeholder."
+          if [ -f requirements.txt ]; then flake8 .; fi
 
-      - name: Deploy frontend
+      - name: Check frontend files
         working-directory: ./frontend
         run: |
-          echo "Deploy frontend step placeholder."
+          ls -l
