@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -15,10 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install dependencies
         working-directory: ./backend
@@ -34,4 +32,5 @@ jobs:
       - name: Run frontend checks
         working-directory: ./frontend
         run: |
-          echo "Frontend directory exists and is ready."
+          echo "No build needed for frontend. Running basic checks."
+          ls -l
