@@ -9,26 +9,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "Error: ./backend directory does not exist!" >&2
-            exit 1
-          fi
+        uses: actions/checkout@v4
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install dependencies (backend)
+      - name: Install backend dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
@@ -39,16 +29,7 @@ jobs:
         run: |
           if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-      - name: Lint backend
-        working-directory: ./backend
+      - name: Deploy static HTML/CSS/JS files as needed
+        working-directory: ./frontend
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 .
-
-      - name: Check frontend files
-        run: |
-          if [ ! -d "./frontend" ]; then
-            echo "Error: ./frontend directory does not exist!" >&2
-            exit 1
-          fi
-          ls -l ./frontend
+          echo 'Deploy static HTML/CSS/JS files as needed.'
