@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -9,14 +9,17 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -29,4 +32,10 @@ jobs:
         run: |
           pytest
 
-      # No npm install or frontend build steps required
+      # No npm install or frontend build steps needed for vanilla HTML/CSS/JS
+      - name: Archive frontend static files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: ./frontend/
