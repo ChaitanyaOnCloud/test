@@ -1,12 +1,10 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -31,8 +29,9 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy frontend (static files)
+      - name: Validate frontend files
         working-directory: ./frontend
         run: |
-          echo "Frontend is static HTML/CSS/JS. No build required."
-          # Optionally, add deployment commands here if needed
+          ls -l *.html *.css *.js || true
+
+      # No npm install step required, as frontend is vanilla HTML/CSS/JS
