@@ -1,9 +1,9 @@
 name: CI
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,7 +23,7 @@ jobs:
         working-directory: ./backend
         run: |
           pytest
-      - name: Run frontend checks
+      - name: Deploy frontend (static)
         working-directory: ./frontend
         run: |
-          echo "No build needed for frontend."
+          echo "Frontend ready for deployment."
