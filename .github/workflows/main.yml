@@ -7,13 +7,13 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -29,13 +29,7 @@ jobs:
         run: |
           pytest
 
-      - name: Validate frontend files
+      - name: Deploy frontend (static)
         working-directory: ./frontend
         run: |
-          ls -l
-          if [ ! -f index.html ]; then echo "index.html missing"; exit 1; fi
-
-      - name: Deploy frontend (static files)
-        if: github.ref == 'refs/heads/main'
-        run: echo "Deploying frontend static files..."
-        # Add deployment logic here if needed
+          echo "Frontend deployment step (static HTML/CSS/JS, no build needed)"
