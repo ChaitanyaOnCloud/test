@@ -31,5 +31,3 @@ jobs:
 
       - name: Deploy frontend (static files)
         run: echo 'Frontend is vanilla HTML/CSS/JS. No build required.'
-
-      # Add deployment steps as needed
