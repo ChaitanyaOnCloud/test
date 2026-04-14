@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -9,33 +9,32 @@ on:
       - main
 
 jobs:
-  build:
+  build-backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
-      - name: Install backend dependencies
-        working-directory: ./backend
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
 
-      - name: Run backend tests
-        working-directory: ./backend
-        run: |
-          if [ -f tests ]; then
-            pytest
-          fi
-
-      - name: Deploy frontend (static HTML/CSS/JS)
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
         working-directory: ./frontend
-        run: |
-          echo "Frontend build step (static files, no npm needed)"
-
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy static files
+        run: echo 'Deploy static HTML/CSS/JS files as needed.'
