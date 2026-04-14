@@ -15,30 +15,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-
+          python-version: '3.11'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
       - name: Run tests
         run: |
           if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
-
-  frontend-check:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Lint HTML/CSS/JS
-        run: |
-          echo "No build needed for vanilla frontend."
