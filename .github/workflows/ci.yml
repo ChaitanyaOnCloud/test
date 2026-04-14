@@ -10,8 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Ensure backend directory exists
+        run: mkdir -p ./backend
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
@@ -27,7 +30,7 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
 
       - name: Lint backend
         working-directory: ./backend
@@ -36,6 +39,5 @@ jobs:
           flake8 .
 
       - name: Check frontend files
-        working-directory: ./frontend
         run: |
-          ls -l
+          ls -l ./frontend
