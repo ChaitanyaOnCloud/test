@@ -11,33 +11,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Ensure backend directory exists
-        run: mkdir -p ./backend
-
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          pytest
 
-      - name: Lint backend
-        working-directory: ./backend
+      - name: Validate frontend files
+        working-directory: ./frontend
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 . || true
+          ls -l
+          # Optionally add HTML/CSS/JS linting if needed
 
-      - name: Check frontend files
-        run: |
-          ls -l ./frontend
+      # No npm install step, as frontend is vanilla HTML/CSS/JS
