@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
@@ -23,19 +23,22 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+        if: ${{ exists('backend/requirements.txt') }}
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
           pytest
+        if: ${{ exists('backend') }}
 
       - name: Lint backend
         working-directory: ./backend
         run: |
           pip install flake8
           flake8 .
+        if: ${{ exists('backend') }}
 
       - name: Check frontend files
-        working-directory: ./frontend
         run: |
-          ls -al
+          ls -l ./frontend
+        if: ${{ exists('frontend') }}
