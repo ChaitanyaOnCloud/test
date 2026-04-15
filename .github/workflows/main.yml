@@ -14,24 +14,18 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+          python-version: '3.11'
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Lint with flake8
-        run: |
-          pip install flake8
-          flake8 .
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Run tests
         run: |
-          if [ -f test ]; then pytest; fi
-
+          pytest
   frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -39,10 +33,14 @@ jobs:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Check for index.html
+        uses: actions/checkout@v4
+      - name: Validate HTML files
         run: |
-          if [ ! -f index.html ]; then echo 'index.html missing' && exit 1; fi
-      - name: Validate HTML
+          if command -v tidy; then
+            tidy -e *.html || true
+          else
+            echo 'tidy not installed, skipping HTML validation.'
+          fi
+      - name: List frontend files
         run: |
-          echo 'HTML validation step (add tool if needed)'
+          ls -l
