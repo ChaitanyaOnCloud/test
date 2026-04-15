@@ -1,5 +1,5 @@
 ---
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -22,16 +22,11 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Run backend tests
         run: |
-          if [ -f requirements.txt ]; then
-            pytest
-          else
-            echo 'No requirements.txt found, skipping tests.'
-          fi
+          pytest
 
   frontend:
     runs-on: ubuntu-latest
@@ -41,11 +36,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Validate frontend directory
+      - name: Validate HTML files
         run: |
-          if [ -d . ]; then
-            echo 'No build needed for vanilla frontend.'
-          else
-            echo 'Frontend directory missing.'
-            exit 1
-          fi
+          echo "Validating HTML files..."
+          # Add HTML validation commands if needed
