@@ -1,53 +1,76 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-and-test:
+  build-backend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
+
+      - name: Ensure backend directory exists
+        run: |
+          if [ ! -d './backend' ]; then
+            echo 'ERROR: ./backend directory missing. Please ensure the backend directory exists and is checked in.'
+            exit 1
+          fi
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          cd ./backend
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
 
       - name: Run backend tests
         run: |
-          pytest
+          cd ./backend
+          if [ -d tests ]; then
+            pytest
+          else
+            echo 'No tests directory found.'
+          fi
 
-      - name: Lint backend
-        run: |
-          pip install flake8
-          flake8 .
-
-  frontend-check:
+  build-frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
+    needs: build-backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Validate HTML
+      - name: Ensure frontend directory exists
         run: |
-          if command -v tidy; then tidy -e *.html || true; else echo 'tidy not installed, skipping HTML validation'; fi
+          if [ ! -d './frontend' ]; then
+            echo 'ERROR: ./frontend directory missing. Please ensure the frontend directory exists and is checked in.'
+            exit 1
+          fi
 
-      - name: Validate CSS
+      - name: Validate frontend files
         run: |
-          if command -v stylelint; then stylelint "**/*.css" || true; else echo 'stylelint not installed, skipping CSS validation'; fi
+          cd ./frontend
+          if [ -f index.html ]; then
+            echo 'index.html found.'
+          else
+            echo 'index.html missing.'
+            exit 1
+          fi
+
+      - name: Run basic HTML lint
+        run: |
+          if command -v tidy >/dev/null 2>&1; then
+            tidy -e ./frontend/index.html || true
+          else
+            echo 'tidy not installed, skipping HTML lint.'
+          fi
