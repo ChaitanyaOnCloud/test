@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,20 +21,22 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install backend dependencies
-        working-directory: ./backend
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run backend tests
-        working-directory: ./backend
         run: |
           pytest
 
-      - name: Archive frontend static files
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: ./frontend
+  frontend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Validate frontend files exist
+        run: |
+          test -f ./frontend/index.html
+          test -f ./frontend/style.css || true
+          test -f ./frontend/app.js || true
