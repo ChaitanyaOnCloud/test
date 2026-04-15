@@ -1,24 +1,22 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  backend:
+  build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install dependencies
@@ -28,31 +26,13 @@ jobs:
       - name: Run tests
         run: |
           pytest
-      - name: Build FastAPI app
-        run: |
-          # Add build steps if needed, e.g., alembic migrations
-          echo "Backend build complete"
-
-  frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Deploy static files
-        run: |
-          echo "Frontend static files ready for deployment"
-      # No npm install or build steps required
-
-  deploy:
-    needs: [backend, frontend]
+  frontend-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Deploy application
+        uses: actions/checkout@v4
+      - name: Validate frontend files exist
         run: |
-          echo "Deploying application..."
-          # Add deployment steps here, e.g., rsync, scp, or cloud deploy commands
+          test -f ./frontend/index.html
+          test -f ./frontend/style.css || true
+          test -f ./frontend/main.js || true
