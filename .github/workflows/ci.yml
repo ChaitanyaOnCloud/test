@@ -1,4 +1,3 @@
----
 name: CI
 
 on:
@@ -8,14 +7,14 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -25,16 +24,16 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run backend tests
         run: |
-          if [ -d tests ]; then pytest tests; else echo 'No tests directory found.'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-  frontend:
+  build-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Validate frontend directory
+        uses: actions/checkout@v4
+      - name: Frontend check
         run: |
           if [ -d . ]; then echo 'No build needed for vanilla frontend.'; else echo 'Frontend directory missing.'; exit 1; fi
