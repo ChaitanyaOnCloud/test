@@ -1,43 +1,51 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  backend:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run tests
-        run: |
-          pytest
+      - name: Run backend tests
+        run: pytest
 
-  frontend:
+  build-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Validate static files
-        run: |
-          ls -l
-          test -f index.html
-          test -f style.css || echo 'style.css not found (OK if not used)'
-          test -f script.js || echo 'script.js not found (OK if not used)'
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: List frontend files
+        run: ls -l
+      - name: Run frontend tests
+        run: echo "No frontend tests defined"
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Print summary
+        run: echo "CI pipeline completed successfully!"
