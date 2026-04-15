@@ -1,5 +1,3 @@
-name: CI Pipeline
-
 on:
   push:
     branches: [ main ]
@@ -7,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -15,27 +13,38 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-
+          python-version: '3.11'
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run backend tests
         run: |
-          if [ -d tests ]; then
-            pytest tests
-          else
-            echo 'No tests directory found.'
-          fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-  frontend:
+  lint-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install flake8
+        run: pip install flake8
+      - name: Lint with flake8
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          flake8 .
+
+  check-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -43,12 +52,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Validate frontend directory
+      - name: List frontend files
+        run: ls -l
+      - name: Validate HTML
         run: |
-          if [ -d . ]; then
-            echo 'No build needed for vanilla frontend.'
-          else
-            echo 'Frontend directory missing.'
-            exit 1
-          fi
+          if command -v tidy; then tidy -errors *.html || true; else echo 'tidy not installed'; fi
+      - name: Validate CSS
+        run: |
+          if command -v stylelint; then stylelint "**/*.css" || true; else echo 'stylelint not installed'; fi
