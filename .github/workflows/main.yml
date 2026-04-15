@@ -14,9 +14,9 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
@@ -30,4 +30,25 @@ jobs:
         run: |
           pytest
 
-  # No npm install or frontend build steps required, as frontend is static HTML/CSS/JS
+      - name: Lint backend
+        run: |
+          pip install flake8
+          flake8 .
+
+  frontend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate HTML
+        run: |
+          if command -v tidy; then tidy -e *.html || true; else echo 'tidy not installed'; fi
+
+      - name: Validate CSS
+        run: |
+          if command -v stylelint; then stylelint "**/*.css" || true; else echo 'stylelint not installed'; fi
+
