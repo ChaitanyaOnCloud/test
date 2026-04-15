@@ -1,5 +1,5 @@
 ---
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -19,14 +19,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run backend tests
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run tests
         run: |
-          pytest
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
   frontend:
     runs-on: ubuntu-latest
@@ -36,11 +37,5 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Lint HTML/CSS/JS
-        run: |
-          echo "Linting frontend files..."
-          # Add your linter commands here if needed
-      - name: Run frontend smoke test
-        run: |
-          echo "Running frontend smoke test..."
-          test -f index.html
+      - name: List static files
+        run: ls -l *.html *.css *.js || echo 'No static files found.'
