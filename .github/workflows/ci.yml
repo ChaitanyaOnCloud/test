@@ -1,3 +1,6 @@
+---
+name: CI
+
 on:
   push:
     branches: [ main ]
@@ -5,10 +8,10 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python 3.10
@@ -25,7 +28,7 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f tests ]; then pytest; else echo 'No tests directory found.'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
       - name: Lint backend
         working-directory: ./backend
@@ -33,8 +36,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install flake8; fi
           flake8 . || true
 
-      - name: Deploy frontend static files
+      - name: Check frontend static files
         working-directory: ./frontend
         run: |
-          echo "Deploy frontend static files here"
-        if: ${{ exists('frontend') }}
+          if [ -f index.html ]; then echo 'Frontend static files ready for deployment.'; else echo 'No index.html found in frontend.'; fi
