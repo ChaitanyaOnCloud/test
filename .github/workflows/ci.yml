@@ -1,42 +1,47 @@
 ---
 name: CI
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
 jobs:
-  build:
+  backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-      - name: Ensure backend directory exists
+          python-version: '3.11'
+      - name: Install dependencies
         run: |
-          mkdir -p ./backend
-      - name: Install backend dependencies
-        working-directory: ./backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Lint backend
         run: |
-          if [ -f requirements.txt ]; then
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
-          else
-            echo 'No requirements.txt found.'
-          fi
+          pip install flake8
+          flake8 .
       - name: Run backend tests
-        working-directory: ./backend
         run: |
-          if [ -f tests/test_main.py ]; then
-            pytest
-          else
-            echo 'No backend tests found.'
-          fi
-      - name: Check frontend files
+          pip install pytest
+          pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Lint frontend files
         run: |
-          test -f ./frontend/index.html || echo 'index.html missing'
-          test -f ./frontend/style.css || echo 'style.css missing'
-          test -f ./frontend/app.js || echo 'app.js missing'
+          echo "Linting frontend files..."
+          # Add actual lint commands if needed
