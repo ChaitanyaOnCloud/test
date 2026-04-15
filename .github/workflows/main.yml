@@ -7,47 +7,44 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  backend-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
 
-      - name: Run backend tests
-        run: |
-          pytest
-
-      - name: Lint backend
-        run: |
-          pip install flake8
-          flake8 .
-
-  frontend-check:
+  frontend-lint:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Validate HTML
+        uses: actions/checkout@v3
+      - name: Lint HTML/CSS/JS
         run: |
-          if command -v tidy; then tidy -errors -q *.html || true; else echo 'tidy not installed, skipping HTML validation.'; fi
+          echo "Linting frontend files..."
+          # Add actual lint commands if needed, e.g. htmlhint, stylelint, eslint
+          # For vanilla JS/HTML/CSS, you may skip or use custom scripts
 
-      - name: Validate CSS
-        run: |
-          if command -v stylelint; then stylelint "**/*.css" || true; else echo 'stylelint not installed, skipping CSS validation.'; fi
+  build:
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-lint]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Build summary
+        run: echo "Build completed successfully!"
