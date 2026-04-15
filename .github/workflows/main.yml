@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -15,18 +15,19 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Set up Python 3.10
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
-        run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; else echo 'No requirements.txt found.'; fi
+        run: pip install -r requirements.txt
       - name: Run tests
-        run: |
-          if [ -f requirements.txt ]; then pytest || true; else echo 'No tests to run.'; fi
+        run: pytest
+      - name: Build and deploy (optional)
+        if: github.ref == 'refs/heads/main'
+        run: echo 'Deploy backend here'
 
   frontend:
     runs-on: ubuntu-latest
@@ -34,11 +35,12 @@ jobs:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Validate frontend directory
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Validate HTML/CSS/JS
         run: |
-          if [ -d . ]; then echo 'No build needed for vanilla frontend.'; else echo 'Frontend directory missing.'; exit 1; fi
-      - name: Run basic HTML validation
-        run: |
-          echo 'Frontend is vanilla HTML/CSS/JS. No build or test required.'
+          echo 'No build required for vanilla frontend.'
+          # Optionally add HTML/CSS/JS linting here
+      - name: Deploy frontend (optional)
+        if: github.ref == 'refs/heads/main'
+        run: echo 'Deploy frontend here'
