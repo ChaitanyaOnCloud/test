@@ -1,4 +1,5 @@
-name: CI Pipeline
+---
+name: CI
 
 on:
   push:
@@ -7,44 +8,22 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        shell: bash
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
+      - name: Validate backend directory
         run: |
-          if [ -f requirements.txt ]; then
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt found. Skipping pip install."
+          if [ ! -d ./backend ]; then
+            echo "Missing ./backend directory. Please ensure it exists." && exit 1
           fi
 
-      - name: Run backend tests
-        run: |
-          if [ -d tests ]; then
-            pytest
-          else
-            echo "No tests directory found. Skipping tests."
-          fi
-
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Validate frontend files
+      - name: Validate frontend structure
         run: |
           if [ ! -f ./frontend/index.html ]; then
             echo "Missing index.html in frontend directory" && exit 1
@@ -55,4 +34,26 @@ jobs:
           if [ ! -d ./frontend/js ]; then
             echo "Missing js directory in frontend" && exit 1
           fi
-        shell: bash
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "requirements.txt not found in ./backend" && exit 1
+          fi
+
+      - name: Run backend tests
+        working-directory: ./backend
+        run: |
+          if [ -d tests ]; then
+            pytest
+          else
+            echo "No tests directory found in ./backend, skipping tests."
+          fi
