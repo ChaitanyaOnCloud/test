@@ -2,34 +2,39 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  build:
+  build-backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install backend dependencies
-        working-directory: ./backend
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
 
-      - name: Run backend tests
-        working-directory: ./backend
-        run: |
-          pytest
-
-      - name: Deploy frontend (static files)
-        run: |
-          echo "Frontend is static HTML/CSS/JS. No build required."
-          # Optionally, add steps to deploy/copy ./frontend if needed
+  build-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: List files
+        run: ls -l
+      - name: Deploy static files
+        run: echo "Deploy step placeholder"
