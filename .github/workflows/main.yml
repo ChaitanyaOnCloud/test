@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,30 +7,33 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
-          cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Run backend tests
+      - name: Run tests
         run: |
-          cd backend
           pytest
 
-      - name: Archive frontend static files
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: frontend/
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Lint HTML/CSS/JS
+        run: echo "No build needed for vanilla frontend."
