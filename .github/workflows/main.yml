@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  backend:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,7 +29,7 @@ jobs:
         run: |
           pytest
 
-  frontend:
+  validate-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,15 +37,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Validate HTML files
+      - name: Install tidy
+        run: sudo apt-get update && sudo apt-get install -y tidy
+      - name: Validate HTML
         run: |
-          echo "Validating HTML files..."
-          # Add HTML validation commands if needed
-      - name: Validate CSS files
-        run: |
-          echo "Validating CSS files..."
-          # Add CSS validation commands if needed
-      - name: Validate JS files
-        run: |
-          echo "Validating JS files..."
-          # Add JS validation commands if needed
+          if command -v tidy; then tidy -e *.html; else echo 'tidy not installed, skipping HTML validation.'; fi
+
+  all-success:
+    needs: [build-backend, validate-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Success
+        run: echo 'CI pipeline completed successfully.'
