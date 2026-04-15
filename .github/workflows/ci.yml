@@ -24,19 +24,16 @@ jobs:
       - name: Install dependencies
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run tests
+      - name: Run backend tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
 
-  build-frontend:
+  check-frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: List frontend files
-        run: |
-          echo "No build needed for vanilla frontend."
-          ls -l
+      - name: Check frontend directory exists
+        run: test -d ./frontend
+      - name: Check index.html exists
+        run: test -f ./frontend/index.html
