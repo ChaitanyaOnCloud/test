@@ -2,39 +2,45 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  backend:
+  build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run backend tests
-        run: pytest
 
-  frontend:
+      - name: Run backend tests
+        run: |
+          pytest
+
+      - name: Lint backend
+        run: |
+          pip install flake8
+          flake8 .
+
+  frontend-static-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Verify frontend files
+        uses: actions/checkout@v4
+      - name: Check for frontend files
         run: |
           test -f ./frontend/index.html
-          test -d ./frontend/css || mkdir -p ./frontend/css
-          test -d ./frontend/js || mkdir -p ./frontend/js
-      - name: Run frontend checks
-        run: echo 'Frontend checks passed.'
+          test -d ./frontend
