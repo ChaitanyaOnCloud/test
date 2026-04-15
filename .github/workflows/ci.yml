@@ -1,16 +1,19 @@
----
 name: CI
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
@@ -19,11 +22,12 @@ jobs:
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          pytest
       - name: Frontend build (static)
         working-directory: ./frontend
-        run: echo "Frontend is static HTML/CSS/JS. No build required."
+        run: |
+          echo "Frontend is static HTML/CSS/JS. No build required."
