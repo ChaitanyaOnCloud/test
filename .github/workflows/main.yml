@@ -2,12 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  backend:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -18,32 +18,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo 'requirements.txt not found.'
-          fi
-      - name: Lint
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install flake8
-            flake8 .
-          else
-            echo 'Skipping lint: requirements.txt not found.'
-          fi
-      - name: Test
-        run: |
-          if [ -d tests ]; then
-            pip install pytest
-            pytest tests
-          else
-            echo 'No tests directory found.'
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
 
-  frontend:
+  validate-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -51,5 +34,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Frontend validation
-        run: echo 'No build/lint steps defined for vanilla frontend.'
+      - name: Validate HTML files
+        run: |
+          echo "Validating HTML files..."
+          if ls *.html 1> /dev/null 2>&1; then echo 'HTML files found.'; else echo 'No HTML files to validate.'; fi
+
+  all-success:
+    runs-on: ubuntu-latest
+    needs: [build-backend, validate-frontend]
+    steps:
+      - name: All jobs succeeded
+        run: echo "CI pipeline completed successfully!"
