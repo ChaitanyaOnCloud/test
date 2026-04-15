@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -7,46 +7,54 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-and-test-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo 'No requirements.txt found.'
-          fi
-      - name: Run tests
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run backend tests
         run: |
-          if [ -f requirements.txt ]; then
-            pytest || echo 'No tests found.'
-          else
-            echo 'No requirements.txt found, skipping tests.'
-          fi
+          pytest
 
-  frontend:
+  lint-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Validate frontend directory
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
         run: |
-          if [ -d . ]; then
-            echo 'No build needed for vanilla frontend.'
-          else
-            echo 'Frontend directory missing.'
-            exit 1
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8
+      - name: Lint with flake8
+        run: |
+          flake8 .
+
+  check-frontend-static:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Check frontend files exist
+        run: |
+          test -f ./frontend/index.html
+          test -d ./frontend/css
+          test -d ./frontend/js
