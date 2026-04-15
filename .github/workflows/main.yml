@@ -1,10 +1,10 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ "main" ]
   pull_request:
-    branches: [main]
+    branches: [ "main" ]
 
 jobs:
   build-backend:
@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -26,15 +26,22 @@ jobs:
       - name: Run tests
         run: pytest
 
-  build-frontend:
+  deploy-frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
+    needs: build-backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: List files
-        run: ls -l
-      - name: Deploy static files
-        run: echo "Deploy step placeholder"
+      - name: Deploy static frontend
+        run: echo "Frontend deployment step (static HTML/CSS/JS)"
+        working-directory: ./frontend
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: build-backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy backend
+        run: echo "Backend deployment step (FastAPI)"
+        working-directory: ./backend
