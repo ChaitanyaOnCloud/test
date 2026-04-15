@@ -1,10 +1,12 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build-backend:
@@ -15,12 +17,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d './backend' ]; then
-            echo 'ERROR: ./backend directory does not exist.'
-            exit 1
-          fi
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
@@ -29,51 +25,19 @@ jobs:
         run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo 'No requirements.txt found.'
-          fi
+          pip install -r requirements.txt
       - name: Run tests
         run: |
-          if [ -f test ]; then
-            pytest
-          else
-            echo 'No tests found.'
-          fi
+          pytest
 
-  build-frontend:
+  deploy-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
+    needs: build-backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Ensure frontend directory exists
-        run: |
-          if [ ! -d './frontend' ]; then
-            echo 'ERROR: ./frontend directory does not exist.'
-            exit 1
-          fi
-      - name: Validate HTML
-        run: |
-          if [ -f index.html ]; then
-            echo 'HTML file exists.'
-          else
-            echo 'No index.html found.'
-          fi
-      - name: Validate CSS
-        run: |
-          if [ -f styles.css ]; then
-            echo 'CSS file exists.'
-          else
-            echo 'No styles.css found.'
-          fi
-      - name: Validate JS
-        run: |
-          if [ -f app.js ]; then
-            echo 'JS file exists.'
-          else
-            echo 'No app.js found.'
-          fi
+      - name: Deploy frontend logic
+        run: echo "Deploy frontend logic here (static files)"
