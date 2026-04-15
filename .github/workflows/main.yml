@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -14,43 +14,30 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
+
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run tests
+
+      - name: Run backend tests
         run: |
           pytest
 
-  build-frontend:
+  deploy-frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
+    needs: build-backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Validate HTML
-        run: |
-          echo "Validating HTML files..."
-          # Add HTML validation commands if needed
-      - name: Validate CSS
-        run: |
-          echo "Validating CSS files..."
-          # Add CSS validation commands if needed
-      - name: Validate JS
-        run: |
-          echo "Validating JS files..."
-          # Add JS validation commands if needed
+        uses: actions/checkout@v4
 
-  all-success:
-    needs: [build-backend, build-frontend]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Success
-        run: echo "All jobs completed successfully!"
+      - name: Deploy frontend (static files)
+        run: |
+          echo "Frontend is static HTML/CSS/JS. No build needed."
+          # Example: cp -r ./frontend/* /desired/deploy/path/
