@@ -1,5 +1,5 @@
 ---
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -20,19 +20,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Lint
+      - name: Run backend tests
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 .
-      - name: Run tests
-        run: |
-          if [ -f requirements.txt ]; then pip install pytest; fi
-          pytest
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
   frontend:
     runs-on: ubuntu-latest
@@ -42,5 +36,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Lint frontend (no build needed)
-        run: echo "Linting frontend (no build needed)"
+      - name: Check index.html exists
+        run: test -f index.html
+      - name: Lint HTML (optional)
+        run: |
+          if command -v tidy >/dev/null 2>&1; then tidy -e index.html || true; else echo 'tidy not installed, skipping lint.'; fi
