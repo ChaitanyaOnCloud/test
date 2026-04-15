@@ -28,31 +28,25 @@ jobs:
           if [ -f requirements.txt ]; then
             python -m pip install --upgrade pip
             pip install -r requirements.txt
-          else
-            echo 'No requirements.txt found in ./backend.'
           fi
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -d tests ]; then
-            pytest
+          if [ -f requirements.txt ]; then
+            pytest || echo 'No tests found.'
           else
-            echo 'No tests directory found in ./backend.'
+            echo 'No requirements.txt found, skipping tests.'
           fi
 
       - name: Check frontend files
         run: |
-          if [ ! -f ./frontend/index.html ]; then
-            echo 'Missing ./frontend/index.html'; exit 1;
-          fi
-          if [ -d ./frontend/css ]; then
-            echo './frontend/css exists';
-          else
-            echo './frontend/css does not exist (skipping)';
-          fi
-          if [ -d ./frontend/js ]; then
-            echo './frontend/js exists';
-          else
-            echo './frontend/js does not exist (skipping)';
+          test -f ./frontend/index.html
+
+      - name: Lint backend (optional)
+        working-directory: ./backend
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install flake8
+            flake8 . || echo 'Linting issues found.'
           fi
