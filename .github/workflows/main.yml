@@ -7,39 +7,48 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies (Backend)
-        working-directory: ./backend
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        if: exists('./backend/requirements.txt')
 
       - name: Run backend tests
-        working-directory: ./backend
         run: |
           pytest
-        if: exists('./backend/tests')
 
       - name: Lint backend
-        working-directory: ./backend
         run: |
           pip install flake8
           flake8 .
-        if: exists('./backend')
 
-      - name: Frontend validation
+  frontend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
         working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for index.html
         run: |
-          echo "No build step required. Add linter commands here if needed."
-        if: exists('./frontend')
+          test -f index.html
+
+      - name: Lint HTML
+        run: |
+          sudo apt-get update && sudo apt-get install -y tidy
+          tidy -e index.html || true
