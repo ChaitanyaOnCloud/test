@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -16,17 +16,19 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python
+        uses: actions/checkout@v3
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
-        run: pytest
+        run: |
+          pytest
 
   frontend:
     runs-on: ubuntu-latest
@@ -35,15 +37,15 @@ jobs:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Deploy static files
+        uses: actions/checkout@v3
+      - name: Frontend is static HTML/CSS/JS. No build required.
         run: echo "Frontend is static HTML/CSS/JS. No build required."
 
-  deploy:
-    needs: [backend, frontend]
+  summary:
     runs-on: ubuntu-latest
+    needs: [backend, frontend]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Deploy application
-        run: echo "Deploy steps go here (e.g., rsync, scp, or cloud deploy commands)"
+        uses: actions/checkout@v3
+      - name: All jobs completed successfully
+        run: echo "CI pipeline finished successfully!"
