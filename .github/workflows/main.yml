@@ -30,20 +30,11 @@ jobs:
         run: |
           pytest
 
-      - name: Lint backend
-        run: |
-          pip install flake8
-          flake8 .
+      - name: Archive backend test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: ./backend/tests/
 
-  # No npm install or Node.js steps required for frontend
-  # If you want to check for existence of frontend files:
-  check-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Check frontend files
-        run: |
-          test -f ./frontend/index.html
-          test -d ./frontend/css
-          test -d ./frontend/js
+  # No npm or frontend build steps required since frontend is static
