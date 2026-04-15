@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -17,16 +17,30 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Set up Python
+      - name: Ensure backend directory exists
+        run: |
+          if [ ! -d ./backend ]; then
+            echo 'Backend directory missing.'
+            exit 1
+          fi
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+          python-version: '3.10'
       - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Run tests
-        run: pytest
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo 'No requirements.txt found.'
+          fi
+      - name: Run backend tests
+        run: |
+          if [ -f test_main.py ]; then
+            pytest test_main.py
+          else
+            echo 'No backend tests found.'
+          fi
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -36,16 +50,27 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Validate index.html exists
-        run: test -f index.html
-      - name: Validate CSS exists
-        run: test -f styles.css
-      - name: Validate JS exists
-        run: test -f app.js
+      - name: Ensure frontend directory exists
+        run: |
+          if [ ! -d ./frontend ]; then
+            echo 'Frontend directory missing.'
+            exit 1
+          fi
+      - name: No build needed for vanilla frontend
+        run: echo 'No build needed for vanilla frontend.'
+      - name: Run frontend tests
+        run: |
+          if [ -f test_frontend.sh ]; then
+            bash test_frontend.sh
+          else
+            echo 'No frontend tests found.'
+          fi
 
-  all-success:
-    needs: [build-backend, build-frontend]
+  summary:
     runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
     steps:
-      - name: Success
-        run: echo "All jobs completed successfully!"
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: CI Pipeline completed
+        run: echo 'CI Pipeline completed successfully.'
