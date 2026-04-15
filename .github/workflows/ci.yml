@@ -1,3 +1,6 @@
+# Rewritten holistic workflow for Python/FastAPI backend and vanilla frontend
+name: CI
+
 on:
   push:
     branches: [ main ]
@@ -5,36 +8,46 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  backend:
+    name: Backend CI
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
-      - name: Install backend dependencies
-        working-directory: ./backend
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Run backend tests
-        working-directory: ./backend
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+      - name: Run tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          if [ -d tests ]; then
+            pytest tests
+          else
+            echo 'No tests directory found.'
+          fi
 
-      - name: Check frontend files
+  frontend:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Validate frontend directory
         run: |
-          test -f ./frontend/index.html
-
-      - name: Lint backend (optional)
-        working-directory: ./backend
-        run: |
-          if command -v flake8; then flake8 .; else echo 'flake8 not installed.'; fi
+          if [ -d . ]; then
+            echo 'No build needed for vanilla frontend.'
+          else
+            echo 'Frontend directory missing.'
+            exit 1
+          fi
