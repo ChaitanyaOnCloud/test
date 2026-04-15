@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -14,18 +14,17 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
-        run: |
-          pytest
+        run: pytest
 
   frontend:
     runs-on: ubuntu-latest
@@ -34,12 +33,9 @@ jobs:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Lint HTML/CSS/JS
-        run: |
-          echo "No build needed for vanilla frontend."
-      - name: Archive frontend
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: ./frontend
+        uses: actions/checkout@v3
+      - name: List files
+        run: ls -l
+      - name: Deploy static files
+        run: echo "Deploy step placeholder"
+
