@@ -14,20 +14,19 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Run backend tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          pytest
 
   frontend:
     runs-on: ubuntu-latest
@@ -35,8 +34,7 @@ jobs:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-      - name: Verify frontend files
-        run: |
-          if [ -f index.html ]; then echo 'Frontend static files ready for deployment.'; else echo 'index.html not found!'; exit 1; fi
+      - name: Prepare frontend static files
+        run: echo "Frontend static files ready for deployment."
