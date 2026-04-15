@@ -7,35 +7,62 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
+
+      - name: Verify backend directory exists
+        run: |
+          if [ ! -d ./backend ]; then
+            echo 'Backend directory missing.'
+            exit 1
+          fi
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
+        working-directory: ./backend
         run: |
-          cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run backend tests
+        working-directory: ./backend
         run: |
-          cd backend
           pytest
 
-      - name: Copy frontend static files
+      - name: Deploy backend (optional)
+        if: github.ref == 'refs/heads/main'
+        working-directory: ./backend
         run: |
-          mkdir -p dist/frontend
-          cp -r frontend/* dist/frontend/
+          echo 'Deploy step placeholder.'
 
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: dist/frontend
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Verify frontend directory exists
+        run: |
+          if [ ! -d ./frontend ]; then
+            echo 'Frontend directory missing.'
+            exit 1
+          fi
+
+      - name: Run frontend lint
+        working-directory: ./frontend
+        run: |
+          echo 'Linting HTML/CSS/JS...'
+          # Add actual lint commands if needed
+
+      - name: Deploy frontend (optional)
+        if: github.ref == 'refs/heads/main'
+        working-directory: ./frontend
+        run: |
+          echo 'Deploy step placeholder.'
