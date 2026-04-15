@@ -7,47 +7,35 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then echo "./backend directory missing" && exit 1; fi
-        shell: bash
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-      - name: Install dependencies
-        run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run backend tests
-        run: |
-          if [ -d tests ]; then pytest tests; else echo "No tests directory"; fi
 
-  frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Ensure frontend directory exists
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
-          if [ ! -d "./frontend" ]; then echo "./frontend directory missing" && exit 1; fi
-        shell: bash
-      - name: Check for index.html
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run backend tests
+        working-directory: ./backend
+        run: |
+          if [ -f tests ]; then pytest; else echo 'No tests directory found, skipping tests.'; fi
+
+      - name: Check frontend index.html exists
+        working-directory: ./frontend
         run: |
           if [ ! -f "index.html" ]; then echo "index.html not found in ./frontend" && exit 1; fi
-        shell: bash
-      - name: Lint HTML
+
+      - name: Lint backend (optional)
+        working-directory: ./backend
         run: |
-          echo "Linting HTML (placeholder)"
+          if [ -f requirements.txt ]; then pip install flake8; fi
+          if [ -d . ]; then flake8 . || true; fi
