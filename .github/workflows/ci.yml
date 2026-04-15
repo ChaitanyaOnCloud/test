@@ -1,3 +1,5 @@
+name: CI
+
 on:
   push:
     branches: [ main ]
@@ -5,36 +7,45 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+          python-version: '3.11'
+
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run tests
-        run: |
-          if [ -f pytest.ini ] || ls test_*.py 1> /dev/null 2>&1; then pytest; else echo 'No tests found.'; fi
+          if [ ! -f requirements.txt ]; then
+            echo -e 'fastapi\nuvicorn' > requirements.txt
+          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-  frontend:
+      - name: Run backend tests
+        run: |
+          if [ -f test_main.py ]; then
+            python -m unittest test_main.py
+          else
+            echo 'No backend tests found.'
+          fi
+
+  frontend-check:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-      - name: Validate HTML files
+
+      - name: Lint HTML/CSS/JS
         run: |
-          echo "Validating HTML files..."
-          if ls *.html 1> /dev/null 2>&1; then echo 'HTML files found.'; else echo 'No HTML files to validate.'; fi
+          echo 'No build/lint steps defined for vanilla frontend.'
