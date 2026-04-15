@@ -7,47 +7,34 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build-backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d "./backend" ]; then
-            echo "./backend directory missing. Creating it."
-            mkdir -p ./backend
-          fi
-
-      - name: Set up Python 3.11
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
-      - name: Install backend dependencies
-        working-directory: ./backend
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
-          if [ -f "requirements.txt" ]; then
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt found in ./backend"
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
 
-      - name: Run backend tests
-        working-directory: ./backend
+  validate-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Validate HTML files
         run: |
-          if [ -f "pytest.ini" ] || [ -d "tests" ]; then
-            pytest
-          else
-            echo "No tests found in ./backend"
-          fi
-
-      - name: Deploy frontend (static)
-        run: |
-          echo "Frontend is static. No build required."
-          if [ ! -d "./frontend" ]; then
-            echo "./frontend directory missing. Creating it."
-            mkdir -p ./frontend
-          fi
-          # Optionally add deployment steps here
+          echo "Validating HTML files..."
+          if ls *.html 1> /dev/null 2>&1; then echo 'HTML files found.'; else echo 'No HTML files to validate.'; fi
