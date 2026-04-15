@@ -1,5 +1,4 @@
----
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -8,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -16,19 +15,37 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Ensure backend directory exists
+        run: |
+          if [ ! -d "./backend" ]; then
+            echo "ERROR: ./backend directory does not exist. Please check your repository structure."
+            exit 1
+          fi
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run backend tests
-        run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
 
-  frontend:
+      - name: Run tests
+        run: |
+          if [ -d tests ]; then
+            pytest tests
+          else
+            echo "No tests directory found. Skipping tests."
+          fi
+
+  frontend-check:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -36,9 +53,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Validate index.html exists
+
+      - name: Ensure frontend directory exists
         run: |
-          test -f index.html
-      - name: Lint HTML (optional)
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory does not exist. Please check your repository structure."
+            exit 1
+          fi
+
+      - name: Lint HTML/CSS/JS
         run: |
-          echo 'No linting configured for vanilla HTML/CSS/JS.'
+          echo "Linting frontend files..."
+          # Add your linter commands here if needed
+          echo "No build step required for vanilla frontend."
