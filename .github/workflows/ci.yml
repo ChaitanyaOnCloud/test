@@ -1,10 +1,11 @@
----
 name: CI
+
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -12,29 +13,36 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Lint
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; flake8 .; fi
-      - name: Run tests
+          pip install flake8
+          flake8 .
+      - name: Test
         run: |
-          if [ -d tests ]; then pytest tests; fi
+          pip install pytest
+          pytest
+
   frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Check frontend directory
+      - uses: actions/checkout@v4
+      - name: List files
+        run: ls -l
+      - name: HTML validation
         run: |
-          if [ -d . ]; then echo 'No build needed for vanilla frontend.'; else echo 'Frontend directory missing.'; exit 1; fi
+          if command -v tidy; then tidy -e *.html || true; else echo 'tidy not installed'; fi
+      - name: CSS validation
+        run: |
+          if command -v stylelint; then stylelint "**/*.css" || true; else echo 'stylelint not installed'; fi
