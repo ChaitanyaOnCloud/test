@@ -19,13 +19,18 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run backend tests
+      - name: Lint
         run: |
+          pip install flake8
+          flake8 .
+      - name: Run tests
+        run: |
+          pip install pytest
           pytest
 
   frontend:
@@ -36,7 +41,5 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Run frontend checks
-        run: |
-          ls -la
-          # Add additional frontend checks here if needed
+      - name: Lint HTML/CSS/JS
+        run: echo "No build step required. Add linter commands here if needed."
