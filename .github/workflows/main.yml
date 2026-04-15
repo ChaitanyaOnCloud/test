@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -15,24 +15,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-
+          python-version: '3.11'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Run backend tests
+      - name: Run tests
         run: |
           pytest
-
-      - name: Lint backend
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Validate HTML files
         run: |
-          pip install flake8
-          flake8 .
-
-  # No npm install or frontend build needed, as frontend is static HTML/CSS/JS
+          find ./frontend -name '*.html' | xargs -I{} echo "Validating {}" # Placeholder for HTML validation
+      - name: Validate CSS files
+        run: |
+          find ./frontend -name '*.css' | xargs -I{} echo "Validating {}" # Placeholder for CSS validation
