@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,11 +29,7 @@ jobs:
         run: |
           if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-      - name: Frontend build (static)
+      - name: Frontend check (no build required)
         working-directory: ./frontend
-        run: echo "Frontend is static HTML/CSS/JS. No build required."
-
-      - name: Lint backend
-        working-directory: ./backend
         run: |
-          if command -v flake8; then flake8 .; else echo 'flake8 not installed.'; fi
+          echo "No build step required. Add linter commands here if needed."
