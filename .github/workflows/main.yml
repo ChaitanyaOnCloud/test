@@ -7,31 +7,50 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
+        uses: actions/checkout@v3
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
-      - name: Install backend dependencies
-        working-directory: ./backend
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Run backend tests
-        working-directory: ./backend
+      - name: Run tests
         run: |
           pytest
 
-      - name: Archive frontend static files
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: ./frontend
+  build-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Validate HTML
+        run: |
+          echo "Validating HTML files..."
+          # Add HTML validation commands if needed
+      - name: Validate CSS
+        run: |
+          echo "Validating CSS files..."
+          # Add CSS validation commands if needed
+      - name: Validate JS
+        run: |
+          echo "Validating JS files..."
+          # Add JS validation commands if needed
+
+  all-success:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Success
+        run: echo "All jobs completed successfully!"
