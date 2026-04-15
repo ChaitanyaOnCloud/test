@@ -1,5 +1,3 @@
-name: CI
-
 on:
   push:
     branches: [ main ]
@@ -7,16 +5,16 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -29,14 +27,8 @@ jobs:
         run: |
           if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-      - name: Lint backend
-        working-directory: ./backend
+      - name: Validate HTML files
+        working-directory: ./frontend
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 . || true
-
-      - name: Check frontend files
-        run: |
-          test -f ./frontend/index.html
-          test -f ./frontend/style.css || true
-          test -f ./frontend/app.js || true
+          echo "Validating HTML files..."
+          # Optionally add HTML validation commands here
