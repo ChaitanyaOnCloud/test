@@ -2,46 +2,40 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
-        working-directory: ./backend
         run: |
+          cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        if: ${{ exists('backend/requirements.txt') }}
 
       - name: Run backend tests
-        working-directory: ./backend
         run: |
+          cd backend
           pytest
-        if: ${{ exists('backend/tests') }}
 
-      - name: List frontend files
-        working-directory: ./frontend
+      - name: Lint backend
         run: |
-          ls -l
-        if: ${{ exists('frontend') }}
+          cd backend
+          flake8 .
 
-      - name: Check frontend index.html
-        working-directory: ./frontend
+      - name: Check frontend files
         run: |
-          test -f index.html
-        if: ${{ exists('frontend/index.html') }}
-
-      - name: Complete
-        run: echo "CI pipeline completed successfully!"
+          test -f frontend/index.html
+          test -f frontend/style.css || true
+          test -f frontend/app.js || true
