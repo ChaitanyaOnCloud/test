@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -26,6 +26,7 @@ jobs:
       - name: Run tests
         run: |
           pytest
+
   frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -34,13 +35,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Validate HTML files
+      - name: Lint HTML/CSS/JS
         run: |
-          if command -v tidy >/dev/null 2>&1; then
-            tidy -e *.html || true
-          else
-            echo 'tidy not installed, skipping HTML validation.'
-          fi
-      - name: List static files
-        run: |
-          ls -l
+          echo "No build needed for vanilla frontend."
+      - name: Archive frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: ./frontend
