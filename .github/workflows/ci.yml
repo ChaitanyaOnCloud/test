@@ -1,3 +1,4 @@
+---
 name: CI Pipeline
 
 on:
@@ -7,33 +8,37 @@ on:
     branches: [ main ]
 
 jobs:
-  build-backend:
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run backend tests
         run: |
-          if [ -f "pytest.ini" ] || [ -d "tests" ]; then pytest; else echo 'No tests found.'; fi
+          if [ -f "pytest.ini" ] || [ -f "tests" ]; then
+            pytest
+          else
+            echo 'No tests found.'
+          fi
 
-  check-frontend:
+  frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
       - name: List static files
         run: |
