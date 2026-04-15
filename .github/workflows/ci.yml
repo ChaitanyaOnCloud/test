@@ -1,4 +1,4 @@
-# Rewritten holistic workflow for Python/FastAPI backend and vanilla frontend
+---
 name: CI
 
 on:
@@ -9,7 +9,6 @@ on:
 
 jobs:
   backend:
-    name: Backend CI
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -26,16 +25,15 @@ jobs:
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
-      - name: Run tests
+      - name: Run backend tests
         run: |
-          if [ -d tests ]; then
-            pytest tests
+          if [ -f requirements.txt ]; then
+            pytest
           else
-            echo 'No tests directory found.'
+            echo 'No requirements.txt found, skipping tests.'
           fi
 
   frontend:
-    name: Frontend CI
     runs-on: ubuntu-latest
     defaults:
       run:
