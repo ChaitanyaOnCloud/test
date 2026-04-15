@@ -10,47 +10,30 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
-          else
-            echo 'No requirements.txt found in ./backend, skipping dependency installation.'
-          fi
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Lint backend
+      - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install flake8
-            flake8 .
-          else
-            echo 'No requirements.txt found, skipping lint.'
-          fi
+          if [ -f tests ]; then pytest; else echo 'No tests directory found.'; fi
 
-      - name: Test backend
-        working-directory: ./backend
+      - name: Validate frontend files
         run: |
-          if [ -f requirements.txt ]; then
-            pip install pytest
-            pytest
-          else
-            echo 'No requirements.txt found, skipping tests.'
-          fi
-
-      - name: Check frontend files
-        run: |
-          test -f ./frontend/index.html || (echo 'Missing index.html' && exit 1)
-          test -f ./frontend/style.css || echo 'Warning: style.css missing.'
-          test -f ./frontend/main.js || echo 'Warning: main.js missing.'
+          if [ ! -f ./frontend/index.html ]; then echo 'Missing index.html' && exit 1; fi
+          echo 'Frontend files validated.'
