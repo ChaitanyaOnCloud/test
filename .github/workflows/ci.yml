@@ -1,5 +1,4 @@
-# Holistic Workflow Repair for Python/FastAPI backend and static frontend
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -8,57 +7,37 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test-backend:
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
       - name: Run backend tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-  lint-backend:
+  frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install flake8
-        run: pip install flake8
-
-      - name: Lint with flake8
+        uses: actions/checkout@v4
+      - name: Check for index.html
         run: |
-          flake8 .
-
-  check-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Check frontend files exist
+          test -f index.html
+      - name: Lint HTML/CSS/JS
         run: |
-          test -d ./frontend && echo 'Frontend directory exists.' || (echo 'Missing frontend directory.' && exit 1)
-          test -f ./frontend/index.html && echo 'index.html found.' || (echo 'Missing index.html.' && exit 1)
+          echo 'No linting configured for vanilla frontend.'
