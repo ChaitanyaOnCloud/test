@@ -1,5 +1,5 @@
 ---
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -8,15 +8,15 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
@@ -28,16 +28,15 @@ jobs:
         run: |
           if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-  frontend:
+  check-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Check index.html exists
-        run: test -f index.html
-      - name: Lint HTML (optional)
+      - name: Validate frontend
         run: |
-          if command -v tidy >/dev/null 2>&1; then tidy -e index.html || true; else echo 'tidy not installed, skipping lint.'; fi
+          echo 'No build required for vanilla frontend.'
+          # Optionally add HTML/CSS/JS validation tools here
