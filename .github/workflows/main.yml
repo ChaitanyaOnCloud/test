@@ -9,9 +9,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,21 +22,21 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+        working-directory: ./backend
 
       - name: Run backend tests
         run: |
           pytest
+        working-directory: ./backend
 
       - name: Lint backend
         run: |
           pip install flake8
           flake8 .
+        working-directory: ./backend
 
   frontend-check:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,7 +44,9 @@ jobs:
       - name: Validate HTML
         run: |
           if command -v tidy; then tidy -e *.html; else echo 'tidy not installed, skipping HTML validation.'; fi
+        working-directory: ./frontend
 
       - name: Validate CSS
         run: |
           if command -v stylelint; then stylelint "**/*.css" || true; else echo 'stylelint not installed, skipping CSS validation.'; fi
+        working-directory: ./frontend
