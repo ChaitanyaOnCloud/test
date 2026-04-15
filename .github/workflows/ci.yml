@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -7,39 +7,34 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash
+        working-directory: ./backend
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
-      - name: Install backend dependencies
-        working-directory: ./backend
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
       - name: Run backend tests
-        working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
+          if [ -d tests ]; then pytest tests; else echo 'No tests directory'; fi
 
-      - name: Lint backend
-        working-directory: ./backend
+  check-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Check for index.html
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 . || true
-
-      - name: Check frontend files
-        run: |
-          test -f ./frontend/index.html
-          test -f ./frontend/style.css || true
-          test -f ./frontend/main.js || true
+          if [ -f index.html ]; then echo 'HTML exists'; else echo 'Missing index.html' && exit 1; fi
