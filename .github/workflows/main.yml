@@ -7,35 +7,31 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Python
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Install dependencies
+
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run tests
-        run: pytest
 
-  frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: List files
-        run: ls -l
-      - name: Deploy static files
-        run: echo "Deploy step placeholder"
+      - name: Run backend tests
+        working-directory: ./backend
+        run: |
+          pytest
 
+      - name: Archive frontend static files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: ./frontend
