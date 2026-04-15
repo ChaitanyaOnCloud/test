@@ -1,3 +1,5 @@
+name: CI Pipeline
+
 on:
   push:
     branches: [ main ]
@@ -7,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,17 +22,23 @@ jobs:
           python-version: '3.11'
 
       - name: Install backend dependencies
-        if: ${{ hashFiles('backend/requirements.txt') != '' }}
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
-        if: ${{ hashFiles('backend/tests/**') != '' }}
         working-directory: ./backend
         run: |
-          pytest
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-      - name: Frontend step
-        run: echo "Frontend is static. No build required."
+      - name: Lint backend
+        working-directory: ./backend
+        run: |
+          if command -v flake8 >/dev/null 2>&1; then flake8 .; else pip install flake8 && flake8 .; fi
+
+      - name: Check frontend files
+        working-directory: ./frontend
+        run: |
+          ls -l
+          if [ -f index.html ]; then echo 'Frontend present.'; else echo 'Frontend missing!'; exit 1; fi
