@@ -2,11 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   backend:
@@ -16,9 +14,9 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install dependencies
@@ -26,7 +24,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
-        run: pytest
+        run: |
+          pytest
 
   frontend:
     runs-on: ubuntu-latest
@@ -35,7 +34,10 @@ jobs:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Deploy static files
-        run: echo "Frontend static files ready. No build required."
-
+        uses: actions/checkout@v4
+      - name: Validate static files
+        run: |
+          ls -l
+          test -f index.html
+          test -f style.css || echo 'style.css not found (OK if not used)'
+          test -f script.js || echo 'script.js not found (OK if not used)'
