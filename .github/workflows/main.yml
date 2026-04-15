@@ -2,46 +2,35 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build-backend:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install dependencies
+
+      - name: Install backend dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Run backend tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
+          cd backend
+          pytest
 
-  build-frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Validate HTML
-        run: |
-          if [ -f index.html ]; then echo 'HTML file exists'; fi
-      - name: Validate CSS
-        run: |
-          if [ -f styles.css ]; then echo 'CSS file exists'; fi
-      - name: Validate JS
-        run: |
-          if [ -f app.js ]; then echo 'JS file exists'; fi
+      - name: Archive frontend static files
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: frontend/
