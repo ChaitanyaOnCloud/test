@@ -19,13 +19,13 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
+          cd ./backend
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        working-directory: ./backend
       - name: Run backend tests
         run: |
+          cd ./backend
           if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
-        working-directory: ./backend
 
   check-frontend:
     runs-on: ubuntu-latest
@@ -33,5 +33,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Frontend is static
-        run: echo "Frontend is static. No build required."
-        working-directory: ./frontend
+        run: |
+          cd ./frontend
+          echo "Frontend is static. No build required."
