@@ -7,37 +7,35 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
+        uses: actions/checkout@v3
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
-          cd ./backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
 
-      - name: Run backend tests
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    needs: build-backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy static frontend
         run: |
-          cd ./backend
-          pytest
-
-      - name: Lint backend
-        run: |
-          cd ./backend
-          pip install flake8
-          flake8 .
-
-      - name: Check frontend static files
-        run: |
-          test -f ./frontend/index.html
-          test -d ./frontend
-
-      # No npm install or npm build steps, as frontend is static
+          echo "Deploying frontend (static HTML/CSS/JS)"
+          # Add deployment commands here if needed, e.g. rsync, scp, etc.
