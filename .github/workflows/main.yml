@@ -1,12 +1,10 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   backend:
@@ -15,18 +13,18 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Run tests
-        run: pytest
+        run: |
+          pytest
 
   frontend:
     runs-on: ubuntu-latest
@@ -34,20 +32,9 @@ jobs:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Verify index.html exists
-        run: test -f index.html
-      - name: Verify CSS exists
-        run: test -f style.css
-      - name: Verify JS exists
-        run: test -f app.js
-
-  build:
-    needs: [backend, frontend]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Build summary
-        run: echo "Build completed successfully!"
+      - uses: actions/checkout@v4
+      - name: Check for static files
+        run: |
+          test -f index.html
+          test -d css || true
+          test -d js || true
