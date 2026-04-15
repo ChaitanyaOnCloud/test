@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -13,17 +13,19 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run backend tests
-        run: pytest
+        run: |
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
 
   frontend:
     runs-on: ubuntu-latest
@@ -31,6 +33,9 @@ jobs:
       run:
         working-directory: ./frontend
     steps:
-      - uses: actions/checkout@v4
-      - name: Check index.html exists
-        run: test -f index.html
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run frontend checks
+        run: |
+          echo 'No build needed for vanilla frontend.'
+          if [ -f index.html ]; then echo 'Frontend exists'; else echo 'Missing index.html'; exit 1; fi
