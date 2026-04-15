@@ -1,54 +1,37 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  backend-tests:
+  build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run tests
+
+      - name: Run backend tests
         run: |
           pytest
 
-  frontend-check:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Validate HTML/CSS/JS
-        run: |
-          echo "Validating frontend files..."
-          # Add any validation commands if needed
-
-  deploy:
-    needs: [backend-tests, frontend-check]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Deploy
-        run: |
-          echo "Deploying application..."
-          # Add deployment commands here
+      - name: Archive frontend static files
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: ../frontend
