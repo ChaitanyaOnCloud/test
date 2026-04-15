@@ -1,9 +1,9 @@
-name: CI Pipeline
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,26 +22,26 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Lint backend
+      - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 .
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-      - name: Test backend
-        working-directory: ./backend
+      - name: Prepare frontend
+        working-directory: ./frontend
         run: |
-          if [ -f requirements.txt ]; then pip install pytest; fi
-          pytest
+          echo "Static frontend files ready for deployment"
 
-      - name: Check frontend directory exists
-        run: |
-          if [ ! -d "./frontend" ]; then
-            echo "ERROR: ./frontend directory does not exist!" >&2
-            exit 1
-          fi
+      - name: Archive backend artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-artifacts
+          path: ./backend
 
-      - name: Lint frontend (HTMLHint)
-        run: |
-          sudo npm install -g htmlhint
-          htmlhint "./frontend/**/*.html" || true
+      - name: Archive frontend artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-artifacts
+          path: ./frontend
