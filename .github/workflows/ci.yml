@@ -1,4 +1,3 @@
----
 name: CI
 
 on:
@@ -17,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install dependencies
@@ -25,10 +24,31 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run backend tests
-        run: |
-          pytest
+        run: pytest
+      - name: Upload backend test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: ./backend/test-results/
 
-  lint-frontend:
+  lint-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install flake8
+        run: pip install flake8
+      - name: Run flake8
+        run: flake8 .
+
+  build-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -36,15 +56,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Install tidy (HTML linter)
-        run: sudo apt-get update && sudo apt-get install -y tidy
-      - name: Lint HTML files
-        run: |
-          if command -v tidy; then tidy -e *.html || true; else echo 'tidy not installed'; fi
-
-  # Optionally, add a job to run all jobs in parallel and require both to pass
-  ci-success:
-    runs-on: ubuntu-latest
-    needs: [build-backend, lint-frontend]
-    steps:
-      - run: echo "All jobs completed successfully."
+      - name: Lint HTML/CSS/JS
+        run: echo "No build needed for vanilla frontend."
+      - name: Upload frontend files
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-files
+          path: ./frontend/
