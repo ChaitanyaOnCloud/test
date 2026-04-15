@@ -1,10 +1,10 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   backend:
@@ -14,20 +14,18 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
         run: |
           pytest
-
   frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -35,18 +33,9 @@ jobs:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Check frontend directory exists
-        run: test -d ./frontend
-      - name: Lint HTML
+        uses: actions/checkout@v4
+      - name: Validate HTML
         run: |
-          echo "Linting HTML files..."
-          # Add HTML linting commands if needed
-      - name: Lint CSS
-        run: |
-          echo "Linting CSS files..."
-          # Add CSS linting commands if needed
-      - name: Lint JS
-        run: |
-          echo "Linting JS files..."
-          # Add JS linting commands if needed
+          if command -v tidy; then tidy -e *.html; else echo 'tidy not installed, skipping HTML validation.'; fi
+      - name: List files
+        run: ls -l
