@@ -1,3 +1,6 @@
+---
+name: CI
+
 on:
   push:
     branches: [ main ]
@@ -5,50 +8,53 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
+          python-version: '3.10'
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
       - name: Run backend tests
         run: |
-          if [ -d tests ]; then pytest tests; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
 
-      - name: Upload backend test results
-        if: always()
-        uses: actions/upload-artifact@v4
+  lint-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          name: backend-test-results
-          path: ./backend/test-results/
+          python-version: '3.10'
+      - name: Install flake8
+        run: pip install flake8
+      - name: Lint with flake8
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          flake8 .
 
-  frontend-check:
+  check-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Lint HTML/CSS/JS
+      - name: Check for index.html
         run: |
-          echo 'No build needed for vanilla frontend.'
-
-      - name: Upload frontend files
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static-files
-          path: ./frontend/
+          if [ ! -f index.html ]; then echo 'Missing index.html in frontend'; exit 1; fi
