@@ -7,33 +7,28 @@ on:
     branches: [ main ]
 
 jobs:
-  build-backend:
+  build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install dependencies
+
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; else echo 'No requirements.txt found'; fi
-      - name: Run backend tests
-        run: |
-          if [ -f tests ]; then pytest; else echo 'No tests directory found'; fi
 
-  check-frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Run backend tests
+        working-directory: ./backend
+        run: |
+          if [ -d tests ]; then pytest tests; else echo 'No tests directory found'; fi
+
       - name: Check frontend static files
+        working-directory: ./frontend
         run: |
           if [ -f index.html ]; then echo "Frontend is static HTML/CSS/JS. No build required."; else echo 'No index.html found in frontend'; fi
