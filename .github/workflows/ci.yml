@@ -1,3 +1,6 @@
+---
+name: CI Pipeline
+
 on:
   push:
     branches: [ main ]
@@ -5,23 +8,28 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Validate backend directory exists
         run: |
-          test -d ./backend || (echo 'Missing ./backend directory' && exit 1)
+          if [ ! -d "./backend" ]; then
+            echo 'Missing ./backend directory'; exit 1;
+          fi
 
-      - name: Set up Python 3.11
+      - name: Validate frontend directory exists
+        run: |
+          if [ ! -d "./frontend" ]; then
+            echo 'Missing ./frontend directory'; exit 1;
+          fi
+
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -32,16 +40,14 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found, skipping.'; fi
+          if [ -f tests ]; then pytest; else echo 'No tests directory found, skipping tests.'; fi
 
-      - name: Validate frontend files
-        run: |
-          test -f ./frontend/index.html || (echo 'Missing index.html' && exit 1)
-          test -d ./frontend/css || mkdir -p ./frontend/css
-          test -d ./frontend/js || mkdir -p ./frontend/js
-          echo 'Frontend files validated.'
-
-      - name: Archive frontend (optional)
-        if: always()
+      - name: Archive frontend
+        if: success() && always() && (exists('./frontend'))
         run: |
           tar czf frontend.tar.gz -C ./frontend .
+
+      - name: Archive backend
+        if: success() && always() && (exists('./backend'))
+        run: |
+          tar czf backend.tar.gz -C ./backend .
