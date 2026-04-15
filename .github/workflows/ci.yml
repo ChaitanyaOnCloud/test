@@ -1,4 +1,3 @@
----
 name: CI
 
 on:
@@ -10,14 +9,17 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -36,7 +38,8 @@ jobs:
           if [ -f requirements.txt ]; then pip install flake8; fi
           flake8 . || true
 
-      - name: Check frontend static files
+      - name: Check frontend files
         working-directory: ./frontend
         run: |
-          if [ -f index.html ]; then echo 'Frontend static files ready for deployment.'; else echo 'No index.html found in frontend.'; fi
+          ls -l
+          if [ -f index.html ]; then echo 'Frontend exists.'; else echo 'Missing index.html' && exit 1; fi
