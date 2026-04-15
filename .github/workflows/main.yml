@@ -1,10 +1,12 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   backend:
@@ -19,14 +21,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
-        run: |
-          pytest
+        run: pytest
 
   frontend:
     runs-on: ubuntu-latest
@@ -36,5 +36,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Lint HTML/CSS/JS (optional)
-        run: echo "No build step required. Add linter commands here if needed."
+      - name: Deploy static files
+        run: echo "Frontend is static HTML/CSS/JS. No build required."
+
+  deploy:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy application
+        run: echo "Deploying application..."
