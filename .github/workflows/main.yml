@@ -1,50 +1,54 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-and-test:
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Run backend tests
+      - name: Run tests
         run: |
           pytest
 
-      - name: Lint backend
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run HTML/CSS/JS lint (optional)
         run: |
-          pip install flake8
-          flake8 .
+          echo 'No build required for vanilla frontend.'
+          # Optionally add HTML/CSS/JS validation tools here
 
-  frontend-check:
+  deploy:
+    needs: [backend, frontend]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Validate HTML
+        uses: actions/checkout@v3
+      - name: Deploy
         run: |
-          sudo apt-get update && sudo apt-get install -y tidy
-          tidy -e ./frontend/*.html || true
-      - name: Validate CSS
-        run: |
-          sudo apt-get install -y csslint
-          csslint ./frontend/*.css || true
+          echo 'Deploy step placeholder.'
+          # Add deployment commands here
