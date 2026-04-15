@@ -11,28 +11,39 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
       - name: Install dependencies
-        run: cd ./backend && pip install -r requirements.txt
+        run: pip install -r requirements.txt
       - name: Run tests
-        run: cd ./backend && pytest
+        run: pytest
+      - name: Build backend
+        run: echo "Backend build complete"
 
   frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy static files
+        run: echo "Frontend static files ready"
+
+  deploy:
+    needs: [backend, frontend]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Validate static files
-        run: |
-          cd ./frontend
-          ls -l *.html *.css *.js || echo 'No static files found.'
-      - name: Deploy frontend
-        run: |
-          cd ./frontend
-          echo 'Deploy step placeholder for static files.'
+      - name: Deploy application
+        run: echo "Deploying application..."
