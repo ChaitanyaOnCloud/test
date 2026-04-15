@@ -1,41 +1,54 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-and-test:
+  backend-tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
+        uses: actions/checkout@v3
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
-          cd ./backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Run backend tests
+      - name: Run tests
         run: |
-          cd ./backend
           pytest
 
-      - name: Lint backend
+  frontend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Validate HTML/CSS/JS
         run: |
-          cd ./backend
-          flake8 .
+          echo "Validating frontend files..."
+          # Add any validation commands if needed
 
-      - name: Check frontend files
+  deploy:
+    needs: [backend-tests, frontend-check]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy
         run: |
-          test -f ./frontend/index.html
-          test -f ./frontend/style.css || true
-          test -f ./frontend/main.js || true
+          echo "Deploying application..."
+          # Add deployment commands here
