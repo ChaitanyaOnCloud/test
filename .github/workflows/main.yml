@@ -9,15 +9,15 @@ on:
       - main
 
 jobs:
-  build-backend:
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up Python 3.11
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
@@ -26,28 +26,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
-        run: |
-          pytest
+        run: pytest
 
-  build-frontend:
+  frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Validate HTML/CSS/JS
-        run: |
-          echo "No build needed for vanilla frontend."
-          ls -l
-
-  deploy:
-    needs: [build-backend, build-frontend]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Deploy
-        run: |
-          echo "Deploy step placeholder."
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy static files
+        run: echo "Frontend static files ready. No build required."
