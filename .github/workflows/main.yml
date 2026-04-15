@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -13,7 +13,8 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -25,19 +26,24 @@ jobs:
       - name: Run tests
         run: |
           pytest
+
   frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     steps:
-      - uses: actions/checkout@v4
-      - name: Check HTML files
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Verify frontend files exist
         run: |
-          ls *.html
-      - name: Check CSS files
-        run: |
-          ls *.css
-      - name: Check JS files
-        run: |
-          ls *.js
+          test -f ./frontend/index.html
+          test -d ./frontend/css
+          test -d ./frontend/js
+      # No npm install or build needed for vanilla HTML/CSS/JS
+
+  deploy:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Deploy (placeholder)
+        run: echo "Deploy step here (add your deployment logic)"
