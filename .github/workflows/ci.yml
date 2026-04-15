@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -7,39 +7,66 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash
+        working-directory: ./backend
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install backend dependencies
-        working-directory: ./backend
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
       - name: Run backend tests
-        working-directory: ./backend
         run: |
           if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-      - name: Lint backend
+  lint-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
         working-directory: ./backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install flake8
+        run: pip install flake8
+      - name: Lint with flake8
         run: |
-          if [ -f requirements.txt ]; then pip install flake8; fi
-          flake8 . || true
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          flake8 .
 
-      - name: Check frontend files
+  build-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
         working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: List frontend files
+        run: ls -al
+      - name: Check for index.html
         run: |
-          ls -l
-          if [ -f index.html ]; then echo 'Frontend present.'; else echo 'No frontend found.'; fi
+          if [ ! -f index.html ]; then echo 'index.html missing!'; exit 1; fi
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Dummy frontend test
+        run: echo 'No frontend tests defined.'
