@@ -14,12 +14,12 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
@@ -30,20 +30,18 @@ jobs:
         run: |
           pytest
 
-  frontend-lint:
+      - name: Lint backend
+        run: |
+          pip install flake8
+          flake8 .
+
+  frontend-check:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Lint HTML
+        uses: actions/checkout@v3
+      - name: Validate frontend files exist
         run: |
-          sudo apt-get update && sudo apt-get install -y tidy
-          tidy -e *.html || true
-      - name: Lint CSS
-        run: |
-          sudo apt-get update && sudo apt-get install -y csslint
-          csslint *.css || true
-      # No npm steps required as frontend is vanilla JS/HTML/CSS
+          test -f ./frontend/index.html
+          test -d ./frontend/css
+          test -d ./frontend/js
