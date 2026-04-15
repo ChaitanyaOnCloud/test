@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -7,41 +7,35 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install backend dependencies
-        working-directory: ./backend
+      - name: Install dependencies
         run: |
-          if [ -d . ]; then
-            python -m pip install --upgrade pip
-            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          else
-            echo "Backend directory not found!"; exit 1
-          fi
-
-      - name: Run backend tests
-        working-directory: ./backend
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run tests
         run: |
-          if [ -f tests/test_main.py ]; then
-            pytest
-          else
-            echo "No backend tests found. Skipping."
-          fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo "No tests found."; fi
 
-      - name: Frontend check
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
         working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Frontend check (no build needed)
         run: |
-          if [ -d . ]; then
-            echo "Frontend is static HTML/CSS/JS. No build required."
-          else
-            echo "Frontend directory not found!"; exit 1
-          fi
+          echo "No build needed for vanilla frontend."
+          ls -l
