@@ -19,11 +19,9 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install dependencies
-        run: pip install -r requirements.txt
-        working-directory: ./backend
+        run: cd ./backend && pip install -r requirements.txt
       - name: Run tests
-        run: pytest
-        working-directory: ./backend
+        run: cd ./backend && pytest
 
   frontend:
     runs-on: ubuntu-latest
@@ -32,8 +30,9 @@ jobs:
         uses: actions/checkout@v3
       - name: Validate static files
         run: |
+          cd ./frontend
           ls -l *.html *.css *.js || echo 'No static files found.'
-        working-directory: ./frontend
       - name: Deploy frontend
-        run: echo 'Deploy step placeholder for static files.'
-        working-directory: ./frontend
+        run: |
+          cd ./frontend
+          echo 'Deploy step placeholder for static files.'
