@@ -7,46 +7,32 @@ on:
     branches: [ main ]
 
 jobs:
-  build-backend:
+  build-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d ./backend ]; then echo 'Backend directory missing.'; exit 1; fi
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; else echo 'No requirements.txt found.'; fi
-      - name: Run tests
-        run: |
-          if [ -f test_main.py ]; then pytest test_main.py; else echo 'No tests found.'; fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-  build-frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Ensure frontend directory exists
+      - name: Run backend tests
         run: |
-          if [ ! -d ./frontend ]; then echo 'Frontend directory missing.'; exit 1; fi
-      - name: No build needed for vanilla frontend
-        run: |
-          echo 'No build needed for vanilla frontend.'
+          pytest
 
-  all-success:
-    needs: [build-backend, build-frontend]
-    runs-on: ubuntu-latest
-    steps:
-      - name: All jobs succeeded
-        run: echo 'CI pipeline completed successfully.'
+      - name: Lint backend
+        run: |
+          pip install flake8
+          flake8 .
+
+  # No npm or Node.js steps needed for frontend
