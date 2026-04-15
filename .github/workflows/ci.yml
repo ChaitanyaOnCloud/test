@@ -1,5 +1,3 @@
-name: CI
-
 on:
   push:
     branches: [ main ]
@@ -7,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,34 +19,21 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
-          if [ -d "./backend" ]; then
-            python -m pip install --upgrade pip
-            if [ -f requirements.txt ]; then
-              pip install -r requirements.txt
-            fi
-          else
-            echo "Backend directory not found!" && exit 1
-          fi
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          if [ -d "./backend" ]; then
-            if [ -f requirements.txt ]; then
-              pytest
-            else
-              echo "No requirements.txt found, skipping tests."
-            fi
-          else
-            echo "Backend directory not found!" && exit 1
-          fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-      - name: Lint frontend files
-        working-directory: ./frontend
+      - name: Lint backend
+        working-directory: ./backend
         run: |
-          if [ -d "./frontend" ]; then
-            echo "Linting frontend files..."
-            # Add actual lint commands here if needed
-          else
-            echo "Frontend directory not found! Skipping lint."
-          fi
+          if [ -f requirements.txt ]; then pip install flake8; fi
+          flake8 .
+
+      - name: Check frontend files
+        run: |
+          test -f ./frontend/index.html
+          test -d ./frontend
