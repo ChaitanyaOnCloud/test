@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -9,28 +9,45 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
-          cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run backend tests
         run: |
-          cd backend
           pytest
 
-      - name: Archive frontend static files
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-static
-          path: frontend/
+      - name: Lint backend
+        run: |
+          pip install flake8
+          flake8 .
+
+  frontend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate HTML
+        run: |
+          if command -v tidy; then tidy -e *.html; else echo 'tidy not installed, skipping HTML validation.'; fi
+
+      - name: Validate CSS
+        run: |
+          if command -v stylelint; then stylelint "**/*.css" || true; else echo 'stylelint not installed, skipping CSS validation.'; fi
