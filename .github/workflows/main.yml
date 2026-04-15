@@ -1,10 +1,10 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   backend:
@@ -14,26 +14,18 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Python 3.10
+        uses: actions/checkout@v4
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo 'No requirements.txt found.'
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Run tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then
-            pytest
-          else
-            echo 'No tests found.'
-          fi
-
+          pytest
   frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -41,20 +33,9 @@ jobs:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Validate frontend directory
+        uses: actions/checkout@v4
+      - name: Validate HTML
         run: |
-          if [ -d . ]; then
-            echo 'No build needed for vanilla frontend.'
-          else
-            echo 'Frontend directory missing.'
-            exit 1
-          fi
-      - name: Run basic HTML validation
-        run: |
-          if [ -f index.html ]; then
-            echo 'index.html found.'
-          else
-            echo 'index.html missing.'
-            exit 1
-          fi
+          if command -v tidy; then tidy -e *.html; else echo 'tidy not installed, skipping HTML validation.'; fi
+      - name: List files
+        run: ls -l
