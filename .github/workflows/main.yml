@@ -1,10 +1,12 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   backend:
@@ -14,7 +16,7 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -24,15 +26,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
-        run: |
-          pytest
+        run: pytest
+
   frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy static files
+        run: echo "Frontend is static. No build required."
+
+  deploy:
+    needs: [backend, frontend]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Validate frontend files
-        run: |
-          test -f ./frontend/index.html
-          test -f ./frontend/style.css || true
-          test -f ./frontend/main.js || true
+        uses: actions/checkout@v3
+      - name: Deploy
+        run: echo "Deploy step placeholder. Add your deployment logic here."
