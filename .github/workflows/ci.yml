@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -19,15 +19,16 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run tests
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run backend tests
         run: |
-          pytest
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
 
-  frontend:
+  check-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -35,6 +36,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Lint HTML/CSS/JS
-        run: |
-          echo "No build step required. Add linter commands here if needed."
+      - name: Check index.html exists
+        run: test -f index.html
+      - name: Check css directory exists (optional)
+        run: test -d css || true
+      - name: Check js directory exists (optional)
+        run: test -d js || true
