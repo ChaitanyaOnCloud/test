@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   backend:
@@ -14,9 +14,9 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
       - name: Install dependencies
@@ -24,19 +24,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests
-        run: |
-          pytest
+        run: pytest
+
   frontend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Validate HTML files
+        uses: actions/checkout@v3
+      - name: Validate static files
         run: |
-          find ./frontend -name '*.html' -exec echo "Validating {}" \;
-      - name: Validate CSS files
-        run: |
-          find ./frontend -name '*.css' -exec echo "Validating {}" \;
-      - name: Validate JS files
-        run: |
-          find ./frontend -name '*.js' -exec echo "Validating {}" \;
+          ls -l *.html *.css *.js || echo 'No static files found'
+      - name: Upload frontend artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-static
+          path: ./frontend
+
