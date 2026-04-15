@@ -1,52 +1,58 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  backend:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Python
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run tests
-        run: pytest
-      - name: Build FastAPI app
+      - name: Run backend tests
         run: |
-          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          pytest
 
-  frontend:
+  lint-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 .
+
+  check-frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Copy static files
+        uses: actions/checkout@v4
+      - name: Check HTML/CSS/JS
         run: |
-          echo "No build required for vanilla frontend."
           ls -l
-
-  deploy:
-    needs: [backend, frontend]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Deploy
-        run: echo "Deploy step placeholder. Implement deployment as needed."
+          # Add additional frontend checks as needed
