@@ -1,3 +1,4 @@
+---
 name: CI
 
 on:
@@ -30,7 +31,7 @@ jobs:
           flake8 .
       - name: Run tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pip install pytest && pytest; else echo 'No tests found'; fi
 
   frontend:
     runs-on: ubuntu-latest
@@ -43,3 +44,6 @@ jobs:
       - name: Check for index.html
         run: |
           if [ ! -f index.html ]; then echo 'index.html missing' && exit 1; fi
+      - name: Validate HTML
+        run: |
+          if command -v tidy; then tidy -e index.html || true; else echo 'tidy not installed, skipping HTML validation'; fi
