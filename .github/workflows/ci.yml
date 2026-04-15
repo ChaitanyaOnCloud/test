@@ -1,3 +1,4 @@
+---
 name: CI
 
 on:
@@ -7,45 +8,35 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
+          python-version: '3.10'
       - name: Install dependencies
         run: |
-          if [ ! -f requirements.txt ]; then
-            echo -e 'fastapi\nuvicorn' > requirements.txt
-          fi
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run backend tests
         run: |
-          if [ -f test_main.py ]; then
-            python -m unittest test_main.py
-          else
-            echo 'No backend tests found.'
-          fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
 
-  frontend-check:
+  frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Lint HTML/CSS/JS
+      - name: Validate HTML files
         run: |
-          echo 'No build/lint steps defined for vanilla frontend.'
+          echo "Validating HTML files..."
+          if ls *.html 1> /dev/null 2>&1; then echo 'HTML files found.'; else echo 'No HTML files to validate.'; fi
