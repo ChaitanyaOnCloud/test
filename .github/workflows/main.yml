@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -7,36 +7,53 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build-and-test-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run tests
+          pip install -r requirements.txt
+      - name: Run backend tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
+          pytest
 
-  frontend:
+  lint-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./backend
     steps:
-      - uses: actions/checkout@v4
-      - name: Check for index.html
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
         run: |
-          if [ ! -f index.html ]; then echo "Missing index.html" && exit 1; fi
-      - name: Lint HTML
+          python -m pip install --upgrade pip
+          pip install flake8
+      - name: Lint backend
         run: |
-          sudo apt-get update && sudo apt-get install -y tidy
-          tidy -e index.html || true
+          flake8 .
+
+  check-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Check frontend files
+        run: |
+          test -f ./frontend/index.html
+          test -f ./frontend/style.css || true
+          test -f ./frontend/main.js || true
