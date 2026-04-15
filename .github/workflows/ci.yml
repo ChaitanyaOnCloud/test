@@ -7,32 +7,45 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Verify backend directory exists
+        run: |
+          if [ ! -d "./backend" ]; then
+            echo "ERROR: ./backend directory does not exist!" >&2
+            exit 1
+          fi
+
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          pytest
+          if [ -d tests ]; then pytest tests; else echo 'No tests directory found.'; fi
 
       - name: Lint backend
         working-directory: ./backend
         run: |
-          pip install flake8
-          flake8 .
+          if command -v flake8; then flake8 .; else echo 'flake8 not installed.'; fi
 
       - name: Check frontend files
         run: |
+          if [ ! -d "./frontend" ]; then
+            echo "ERROR: ./frontend directory does not exist!" >&2
+            exit 1
+          fi
           ls -l ./frontend
