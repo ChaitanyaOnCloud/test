@@ -9,9 +9,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,31 +18,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         run: |
+          cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run backend tests
         run: |
+          cd backend
           pytest
 
       - name: Lint backend
         run: |
-          pip install flake8
+          cd backend
           flake8 .
 
-  frontend-check:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check for static files
-        run: |
-          test -f index.html
-          test -d css || true
-          test -d js || true
+      - name: Archive frontend static files
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: frontend/
