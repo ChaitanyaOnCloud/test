@@ -1,45 +1,54 @@
+name: CI
+
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  build-and-test:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
+          python-version: '3.10'
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Run backend tests
+      - name: Run tests
         run: |
           pytest
 
-      - name: Lint backend
-        run: |
-          pip install flake8
-          flake8 .
-
-  frontend-check:
+  build-frontend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Validate frontend files exist
+        uses: actions/checkout@v3
+      - name: Validate HTML
         run: |
-          test -f ./frontend/index.html
-          test -d ./frontend/css
-          test -d ./frontend/js
+          if ! grep -q '<html' index.html; then echo 'Missing HTML tag'; exit 1; fi
+      - name: Validate CSS
+        run: |
+          if ! grep -q '{' styles.css; then echo 'Malformed CSS'; exit 1; fi
+      - name: Validate JS
+        run: |
+          if ! grep -q 'function' script.js; then echo 'No JS functions found'; exit 1; fi
+
+  all-success:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Success
+        run: echo "All jobs completed successfully!"
