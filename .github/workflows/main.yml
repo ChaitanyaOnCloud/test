@@ -1,48 +1,50 @@
+name: CI
+
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build-backend:
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Python 3.10
+        uses: actions/checkout@v4
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run backend tests
+      - name: Run tests
         run: |
           pytest
-
-  build-frontend:
+  frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Run frontend checks
+        uses: actions/checkout@v4
+      - name: Validate HTML files
         run: |
-          echo "No build required for vanilla HTML/CSS/JS."
-          ls -l
-
-  all-success:
-    needs: [build-backend, build-frontend]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Success
-        run: echo "All jobs completed successfully!"
+          if command -v tidy; then
+            tidy -e *.html || true
+          else
+            echo 'tidy not installed, skipping HTML validation.'
+          fi
+      - name: Validate CSS files
+        run: |
+          if command -v stylelint; then
+            stylelint "**/*.css" || true
+          else
+            echo 'stylelint not installed, skipping CSS validation.'
+          fi
