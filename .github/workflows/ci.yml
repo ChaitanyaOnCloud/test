@@ -1,5 +1,3 @@
-name: CI Pipeline
-
 on:
   push:
     branches: [ main ]
@@ -7,35 +5,42 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
+  build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install dependencies
+
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run backend tests
-        run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found'; fi
 
-  frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run frontend checks
+      - name: Run backend tests
+        working-directory: ./backend
         run: |
-          echo 'No build needed for vanilla frontend.'
-          if [ -f index.html ]; then echo 'Frontend exists'; else echo 'Missing index.html'; exit 1; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+
+      - name: Lint backend
+        working-directory: ./backend
+        run: |
+          if [ -f requirements.txt ]; then pip install flake8; fi
+          flake8 .
+
+      - name: Check frontend files
+        run: |
+          test -f ./frontend/index.html
+          test -d ./frontend
+
+      - name: Archive backend test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-test-results
+          path: ./backend/test-results/
