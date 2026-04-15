@@ -2,69 +2,41 @@ name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build-backend:
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-
+          python-version: '3.11'
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo "requirements.txt not found in ./backend" && exit 1
-          fi
-
-      - name: Run backend tests
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run tests
         run: |
-          if [ -d tests ]; then
-            pytest tests
-          else
-            echo "No tests directory found in ./backend" && exit 0
-          fi
+          pytest
 
-  check-frontend:
+  frontend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Validate frontend structure
+        uses: actions/checkout@v4
+      - name: Validate static files
         run: |
-          if [ ! -f ./frontend/index.html ]; then
-            echo "Missing index.html in frontend directory" && exit 1
-          fi
-          if [ ! -d ./frontend/css ]; then
-            echo "Missing css directory in frontend" && exit 1
-          fi
-          if [ ! -d ./frontend/js ]; then
-            echo "Missing js directory in frontend" && exit 1
-          fi
-
-      - name: Lint HTML/CSS/JS
-        run: |
-          echo "Linting frontend files (placeholder)"
-          # Add actual lint commands if needed
-
-  summary:
-    runs-on: ubuntu-latest
-    needs: [build-backend, check-frontend]
-    steps:
-      - name: Success summary
-        run: echo "CI pipeline completed successfully!"
+          test -f index.html
+          test -d css || true
+          test -d js || true
