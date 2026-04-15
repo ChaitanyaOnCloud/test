@@ -1,4 +1,4 @@
----
+# GitHub Actions Workflow for Python/FastAPI backend and static frontend
 name: CI
 
 on:
@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-backend:
+  build-and-test-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -16,25 +16,52 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Run backend tests
         run: |
-          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+          if [ -f "pytest.ini" ] || [ -f "tests" ]; then
+            pytest
+          else
+            echo "No tests found. Skipping."
+          fi
 
-  check-frontend:
+  lint-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Check frontend directory
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Lint with flake8
         run: |
-          if [ -d . ]; then echo 'No build needed for vanilla frontend.'; else echo 'Frontend directory missing.'; exit 1; fi
+          flake8 .
+
+  check-frontend-static:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Check frontend files exist
+        run: |
+          test -f ./frontend/index.html
+          echo "Frontend static files present."
