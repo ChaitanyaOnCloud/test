@@ -1,3 +1,4 @@
+---
 name: CI Pipeline
 
 on:
@@ -7,41 +8,42 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Ensure backend and frontend directories exist
-        run: |
-          mkdir -p ./backend
-          mkdir -p ./frontend/css
-          mkdir -p ./frontend/js
-
-      - name: Validate frontend files
-        run: |
-          if [ ! -f ./frontend/index.html ]; then
-            echo '<!DOCTYPE html><html><head><title>Placeholder</title></head><body>Placeholder index.html</body></html>' > ./frontend/index.html
-          fi
-          test -f ./frontend/index.html || (echo 'Missing index.html' && exit 1)
-          echo 'Frontend files validated.'
-
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install backend dependencies
-        working-directory: ./backend
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
       - name: Run backend tests
-        working-directory: ./backend
         run: |
-          if [ -d tests ]; then pytest tests; else echo 'No tests directory found.'; fi
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; else echo 'No tests found.'; fi
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Prepare frontend static files
+        run: echo "Frontend static files ready for deployment"
+
+  deploy:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Deploy (placeholder)
+        run: echo "Deploy step would go here."
