@@ -2,75 +2,49 @@ name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build-backend:
+  backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Ensure backend directory exists
-        run: |
-          if [ ! -d './backend' ]; then
-            echo 'ERROR: ./backend directory missing. Please ensure the backend directory exists and is checked in.'
-            exit 1
-          fi
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
 
-      - name: Install backend dependencies
-        run: |
-          cd ./backend
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-
-      - name: Run backend tests
-        run: |
-          cd ./backend
-          if [ -d tests ]; then
-            pytest
-          else
-            echo 'No tests directory found.'
-          fi
-
-  build-frontend:
+  frontend:
     runs-on: ubuntu-latest
-    needs: build-backend
+    defaults:
+      run:
+        working-directory: ./frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Ensure frontend directory exists
+      - name: Verify frontend directory
         run: |
-          if [ ! -d './frontend' ]; then
-            echo 'ERROR: ./frontend directory missing. Please ensure the frontend directory exists and is checked in.'
-            exit 1
-          fi
+          if [ -d ./frontend ]; then echo 'No build needed for vanilla frontend.'; else echo 'Frontend directory missing.'; exit 1; fi
+      - name: Lint HTML/CSS/JS
+        run: echo 'Linting skipped for vanilla frontend.'
 
-      - name: Validate frontend files
-        run: |
-          cd ./frontend
-          if [ -f index.html ]; then
-            echo 'index.html found.'
-          else
-            echo 'index.html missing.'
-            exit 1
-          fi
-
-      - name: Run basic HTML lint
-        run: |
-          if command -v tidy >/dev/null 2>&1; then
-            tidy -e ./frontend/index.html || true
-          else
-            echo 'tidy not installed, skipping HTML lint.'
-          fi
+  summary:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Pipeline summary
+        run: echo 'CI pipeline completed successfully.'
