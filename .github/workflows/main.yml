@@ -2,9 +2,11 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build-backend:
@@ -15,7 +17,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -26,26 +28,6 @@ jobs:
       - name: Run tests
         run: pytest
 
-  deploy-backend:
-    needs: build-backend
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Deploy Backend
-        run: echo "Deploy backend logic here"
-
   build-frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -54,17 +36,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Copy static files
+      - name: Prepare static files
         run: echo "Static frontend files ready for deployment"
 
-  deploy-frontend:
-    needs: build-frontend
+  deploy:
+    needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Deploy Frontend
-        run: echo "Deploy frontend logic here"
+      - name: Deploy
+        run: echo "Deploying application..."
